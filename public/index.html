@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Analyze a public webpage’s mobile performance, transfer size, and estimated carbon footprint with PageSpeed Insights and SWDM v4.">
+  <meta name="color-scheme" content="dark">
+  <title>GreenWeb Monitor — Website performance & carbon estimates</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to analyzer</a>
+  <div class="page">
+    <header>
+      <a class="brand" href="/" aria-label="GreenWeb Monitor home"><span class="mark" aria-hidden="true">g</span>GreenWeb <span class="brand-light">Monitor</span></a>
+      <a href="#methodology" class="method-link">Methodology</a>
+    </header>
+    <main id="main">
+      <section class="analyzer" aria-labelledby="title">
+        <div class="eyebrow">WEBSITE EFFICIENCY / MOBILE AUDIT</div>
+        <h1>A lighter page.<br>A smaller footprint.</h1>
+        <p class="intro">Check a webpage’s performance, see how much data it transfers, and estimate its carbon footprint per visit.</p>
+        <form id="analyze-form" novalidate>
+          <label for="website-url">Website URL</label>
+          <div class="input-row">
+            <input id="website-url" name="url" type="url" inputmode="url" placeholder="https://example.com" maxlength="2048" autocomplete="url" spellcheck="false" required aria-describedby="input-hint error-message">
+            <button type="submit" id="analyze-button">Analyze page</button>
+          </div>
+          <p class="hint" id="input-hint">One public page at a time. Your URL is sent to Google PageSpeed Insights.</p>
+          <div class="status" id="analysis-status" role="status" aria-live="polite" hidden><span class="loading-dot" aria-hidden="true"></span><span id="status-text">Running a mobile analysis. This can take up to 55 seconds.</span></div>
+          <p class="error" id="error-message" role="alert" hidden></p>
+        </form>
+        <div class="specs"><span>Mobile performance</span><span>Transfer size</span><span>Estimated CO₂e / visit</span></div>
+      </section>
+      <section id="results" aria-labelledby="results-title" tabindex="-1" hidden>
+        <div class="section-heading"><h2 id="results-title">Page analysis</h2><span class="tag">MOBILE</span></div>
+        <p id="result-url" class="result-url"></p>
+        <div class="metrics">
+          <div class="metric"><h3>Performance score</h3><div><strong id="performance-score"></strong><span class="unit"> / 100</span></div><p id="performance-label"></p></div>
+          <div class="metric"><h3>Page transfer size</h3><div><strong id="transfer-size"></strong><span class="unit" id="transfer-unit"></span></div><p id="transfer-bytes"></p></div>
+          <div class="metric"><h3>Estimated Carbon Footprint</h3><div><strong id="carbon-value"></strong><span class="unit"> g CO₂e</span></div><p>Per visit · SWDM v4</p></div>
+        </div>
+        <p class="time">Analyzed <time id="analysis-time"></time> · Google PageSpeed Insights</p>
+        <section class="recommendations" aria-labelledby="recommendations-title">
+          <div class="section-heading"><h2 id="recommendations-title">What to improve</h2><span class="count" id="recommendation-count"></span></div>
+          <p class="section-note">Up to five opportunities from this page’s Lighthouse audit.</p>
+          <ol id="recommendation-list"></ol>
+          <p id="no-recommendations" hidden>No relevant optimization findings were available in this audit. This does not establish that the page has no other issues.</p>
+        </section>
+        <aside class="assumption"><h3>About this estimate</h3><p id="hosting-assumption"></p><p>Based on transferred bytes and a model. This is not a direct measurement of energy use or actual emissions.</p></aside>
+      </section>
+      <section class="methodology" id="methodology" aria-labelledby="method-title">
+        <div class="section-heading"><h2 id="method-title">How the estimate works</h2><span class="small-label">SWDM v4</span></div>
+        <div class="method-grid">
+          <div><span class="step">01 / MEASURE</span><h3>Test the page</h3><p>Google PageSpeed Insights runs a mobile Lighthouse performance audit. Transfer size comes from the total network payload in bytes.</p></div>
+          <div><span class="step">02 / ESTIMATE</span><h3>Model the footprint</h3><p>CO2.js uses the Sustainable Web Design Model v4 to estimate grams of CO₂e per visit from those bytes.</p></div>
+          <div><span class="step">03 / INTERPRET</span><h3>Understand the limits</h3><p>Green hosting is unverified, so the model uses its non-green assumption. Results vary by test conditions and are estimates.</p></div>
+        </div>
+        <p class="source-links"><a href="https://developers.google.com/speed/docs/insights/v5/about" target="_blank" rel="noopener noreferrer">PageSpeed documentation</a><a href="https://developers.thegreenwebfoundation.org/co2js/models/overview/" target="_blank" rel="noopener noreferrer">Carbon model documentation</a></p>
+      </section>
+    </main>
+    <footer><span>GreenWeb Monitor <span class="footer-version">/ Functional MVP</span></span><span>No analytics. No saved analysis history.</span></footer>
+  </div>
+</body>
+</html>
