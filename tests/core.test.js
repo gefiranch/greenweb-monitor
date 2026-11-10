@@ -4,7 +4,7 @@ import { co2 } from '@tgwf/co2';
 import { validateUrl } from '../src/validation.js';
 import { estimateCarbon } from '../src/carbon.js';
 import { analyzePageSpeed, normalizePageSpeed } from '../src/pagespeed.js';
-import { getRecommendations } from '../src/recommendations.js';
+import { getRecommendations, getPassedChecks } from '../src/recommendations.js';
 import { pageSpeedFixture } from './fixture.js';
 
 for (const value of ['https://example.com', 'http://example.com/page?q=one', 'https://8.8.8.8', 'https://[2606:4700:4700::1111]/', 'https://例え.jp/']) {
@@ -78,3 +78,25 @@ for (const [status, code, body] of [[429, 'UPSTREAM_QUOTA_EXCEEDED'], [403, 'API
 test('maps network failure', async () => assert.rejects(analyzePageSpeed('https://example.com/', { fetchImpl: async () => { throw new TypeError('secret internal hostname'); } }), e => e.code === 'NETWORK_ERROR' && !e.message.includes('secret')));
 test('times out and aborts upstream request', async () => assert.rejects(analyzePageSpeed('https://example.com/', { timeoutMs: 5, fetchImpl: async (url, { signal }) => new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))) }), e => e.code === 'API_TIMEOUT'));
 test('rejects non-JSON upstream response', async () => assert.rejects(analyzePageSpeed('https://example.com/', { fetchImpl: async () => new Response('<html>error</html>') }), e => e.code === 'INCOMPLETE_RESPONSE'));
+
+test('audit priorities honor exact thresholds and exclude invalid or unscored checks', () => {
+  for (const [score, expected] of [[0, 'high'], [.499, 'high'], [.5, 'medium'], [.899, 'medium'], [.9, 'passed'], [1, 'passed']]) {
+    const audits = { 'unused-javascript': { score } };
+    const findings = getRecommendations(audits), passed = getPassedChecks(audits);
+    assert.equal(findings[0]?.priority ?? 'passed', expected);
+    assert.equal(passed.length, expected === 'passed' ? 1 : 0);
+  }
+  for (const score of [null, undefined, NaN, Infinity, -1, 2, '1']) {
+    const audits = { 'unused-javascript': { score } };
+    assert.deepEqual(getRecommendations(audits), []);
+    assert.deepEqual(getPassedChecks(audits), []);
+  }
+  for (const scoreDisplayMode of ['error', 'manual', 'notApplicable', 'not_applicable']) {
+    assert.deepEqual(getPassedChecks({ 'unused-javascript': { score: 1, scoreDisplayMode } }), []);
+  }
+});
+test('a failed image audit prevents a contradictory green image group', () => {
+  const audits = { 'modern-image-formats': { score: 1 }, 'image-delivery-insight': { score: .4 } };
+  assert.equal(getRecommendations(audits)[0].priority, 'high');
+  assert.deepEqual(getPassedChecks(audits), []);
+});

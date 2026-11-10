@@ -135,3 +135,20 @@ test('stopping a request aborts the browser fetch and restores the form', async 
   assert.equal(app.get('results').hidden, true);
   assert.match(app.get('analysis-status').textContent, /Stopped waiting/);
 });
+
+test('results label audit priorities and clear passed checks on reanalysis', async () => {
+  let calls = 0;
+  const result = fixtureResult([
+    { title: 'Scripts', priority: 'high' }, { title: 'Styles', priority: 'medium' }, { title: 'Unknown', priority: '<script>' }
+  ]);
+  const app = await harness(async () => Response.json(++calls === 1 ? result : { ...fixtureResult([]), passedChecks: [] }));
+  app.get('website-url').value = 'https://example.com/'; await app.submit();
+  const items = app.get('recommendation-list').children;
+  assert.deepEqual(items.map(item => item.children[3].textContent), ['High priority', 'Needs attention', 'Review']);
+  assert.equal(items[2].dataset.priority, 'unknown');
+  assert.equal(app.get('passed-checks').hidden, false);
+  assert.equal(app.get('passed-check-list').children[0].textContent, 'Page payload');
+  await app.submit();
+  assert.equal(app.get('passed-checks').hidden, true);
+  assert.equal(app.get('passed-check-list').children.length, 0);
+});

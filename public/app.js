@@ -47,11 +47,25 @@ function renderResults(data, motion) {
     const finding = document.createElement('p');
     finding.className = 'finding';
     finding.textContent = item.finding;
-    li.append(heading, suggestion, finding);
+    const priority = document.createElement('span');
+    const level = item.priority === 'high' ? 'high' : item.priority === 'medium' ? 'medium' : 'unknown';
+    li.dataset.priority = level;
+    priority.className = `priority-badge priority-${level}`;
+    priority.textContent = level === 'high' ? 'High priority' : level === 'medium' ? 'Needs attention' : 'Review';
+    li.append(heading, suggestion, finding, priority);
     list.append(li);
   }
   text('recommendation-count', `${data.recommendations.length} ${data.recommendations.length === 1 ? 'finding' : 'findings'}`);
   document.getElementById('no-recommendations').hidden = data.recommendations.length > 0;
+  const passed = document.getElementById('passed-checks');
+  const passedList = document.getElementById('passed-check-list');
+  passedList.replaceChildren();
+  for (const check of data.passedChecks || []) {
+    const item = document.createElement('li');
+    item.textContent = check.title;
+    passedList.append(item);
+  }
+  passed.hidden = !data.passedChecks?.length;
   results.dataset.motion = motion;
   results.hidden = false;
   results.focus();

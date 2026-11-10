@@ -231,3 +231,14 @@ node tests/preview-ui.mjs
 Open **http://127.0.0.1:3001/_qa**. The test page labels its synthetic PageSpeed response and lets you inspect 360 px, 390 px, and 960 px frames. It runs the real CO2.js calculation against that fixture. This helper is never imported by `src/server.js` or `worker/index.js`, and is not a production analysis. Stop it with Ctrl+C.
 
 See [docs/MOLECULE_GLOBE_MOTION.md](docs/MOLECULE_GLOBE_MOTION.md) for the current molecule and globe motion refinement. [docs/FOOTPRINT_MOTION.md](docs/FOOTPRINT_MOTION.md) records the previous footprint revision. [docs/CLEAN_ICON_REFINEMENT.md](docs/CLEAN_ICON_REFINEMENT.md) records the previous flat-icon revision. [docs/HEMISPHERE_REFINEMENT.md](docs/HEMISPHERE_REFINEMENT.md) records the hemisphere work and the previous metallic icon styling. [docs/INTERACTION_REFINEMENT.md](docs/INTERACTION_REFINEMENT.md) records the previous full-globe revision. [docs/BLACK_THEME.md](docs/BLACK_THEME.md) records the earlier static black design. [docs/UI_REFINEMENT.md](docs/UI_REFINEMENT.md) records the earlier forest design and its historical measurements. A language or framework choice alone does not establish environmental impact.
+
+
+## 11. Recommendation priorities
+
+“Where to improve” uses each supported audit's score, not the overall performance score:
+
+- **Red — High priority:** audit score below 0.5.
+- **Yellow — Needs attention:** score from 0.5 up to (but excluding) 0.9.
+- **Green — Passed:** score at least 0.9, shown separately under “Looking good”.
+
+These are app display categories, not a prediction of optimization savings. Text badges accompany every color. Missing, invalid, manual, not-applicable, and error scores do not produce a green result. Related checks are grouped using the lowest score, so a failing image check cannot appear as a green image group. Up to five improvement recommendations remain ordered by score and available savings; passed groups are shown separately. The API adds `priority` (`high` or `medium`) to recommendations and `passedChecks` (`id`, `title`) to results.

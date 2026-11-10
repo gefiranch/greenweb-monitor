@@ -1,5 +1,5 @@
 import { AppError } from './errors.js';
-import { getRecommendations } from './recommendations.js';
+import { getRecommendations, getPassedChecks } from './recommendations.js';
 import { validateUrl } from './validation.js';
 
 export function normalizePageSpeed(data) {
@@ -21,7 +21,7 @@ export function normalizePageSpeed(data) {
     throw new AppError('INCOMPLETE_RESPONSE', 'Google did not return a mobile analysis. Please try again.', 502);
   }
   return { url, analyzedAt: new Date(time).toISOString(), strategy: 'mobile', performanceScore: Math.round(score * 100),
-    transferBytes: bytes, recommendations: getRecommendations(result.audits) };
+    transferBytes: bytes, recommendations: getRecommendations(result.audits), passedChecks: getPassedChecks(result.audits) };
 }
 
 export async function analyzePageSpeed(url, { apiKey = '', fetchImpl = fetch, timeoutMs = 55000 } = {}) {

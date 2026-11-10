@@ -13,11 +13,11 @@ const rules = [
   ['total-byte-weight', 'Reduce the page payload', 'Review large images, scripts, and media to reduce total data transferred.', 'payload'],
 ];
 
-export function getRecommendations(audits = {}) {
+function collectChecks(audits = {}) {
   const findings = [];
   for (const [id, title, suggestion, group] of rules) {
     const audit = audits[id];
-    if (!audit || typeof audit.score !== 'number' || audit.score >= 0.9
+    if (!audit || !Number.isFinite(audit.score) || audit.score < 0 || audit.score > 1
       || ['error', 'notApplicable', 'not_applicable', 'manual'].includes(audit.scoreDisplayMode)) continue;
     const bytes = audit.details?.overallSavingsBytes ?? audit.metricSavings?.totalBytes ?? 0;
     const ms = audit.details?.overallSavingsMs ?? audit.metricSavings?.FCP ?? audit.metricSavings?.LCP ?? 0;
@@ -32,5 +32,21 @@ export function getRecommendations(audits = {}) {
     if (groups.has(item.group)) return false;
     groups.add(item.group);
     return true;
-  }).slice(0, 5).map(({ group, score, ...item }) => item);
+  });
+}
+
+// These priorities describe individual supported audits, not the page's overall score.
+export function getRecommendations(audits = {}) {
+  return collectChecks(audits).filter(item => item.score < .9).slice(0, 5)
+    .map(({ group, score, ...item }) => ({ ...item, priority: score < .5 ? 'high' : 'medium' }));
+}
+
+const passedLabels = {
+  scripts: 'Unused JavaScript', styles: 'Unused CSS', images: 'Image delivery',
+  loading: 'Render-blocking resources', compression: 'Text compression',
+  'minify-js': 'JavaScript minification', 'minify-css': 'CSS minification', payload: 'Page payload',
+};
+export function getPassedChecks(audits = {}) {
+  return collectChecks(audits).filter(item => item.score >= .9)
+    .map(({ id, group }) => ({ id, title: passedLabels[group] }));
 }
