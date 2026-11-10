@@ -13,20 +13,36 @@ const rules = [
   ['total-byte-weight', 'Reduce the page payload', 'Review large images, scripts, and media to reduce total data transferred.', 'payload'],
 ];
 
+// App-specific impact bands, not Lighthouse scoring thresholds.
+function estimate(values) {
+  const valid = values.filter(value => Number.isFinite(value) && value >= 0);
+  return valid.length ? Math.max(...valid) : null;
+}
+function impactFor(bytes, ms) {
+  if (bytes === null && ms === null) return 'unknown';
+  if (bytes >= 100 * 1024 || ms >= 500) return 'high';
+  if (bytes >= 20 * 1024 || ms >= 100) return 'medium';
+  return 'low';
+}
 function collectChecks(audits = {}) {
   const findings = [];
   for (const [id, title, suggestion, group] of rules) {
     const audit = audits[id];
     if (!audit || !Number.isFinite(audit.score) || audit.score < 0 || audit.score > 1
       || ['error', 'notApplicable', 'not_applicable', 'manual'].includes(audit.scoreDisplayMode)) continue;
-    const bytes = audit.details?.overallSavingsBytes ?? audit.metricSavings?.totalBytes ?? 0;
-    const ms = audit.details?.overallSavingsMs ?? audit.metricSavings?.FCP ?? audit.metricSavings?.LCP ?? 0;
+    const savingsBytes = estimate([audit.details?.overallSavingsBytes, audit.metricSavings?.totalBytes]);
+    const savingsMs = estimate([audit.details?.overallSavingsMs, audit.metricSavings?.FCP, audit.metricSavings?.LCP]);
+    const evidence = [];
+    if (savingsMs !== null) evidence.push(`${Math.round(savingsMs)} ms`);
+    if (savingsBytes !== null) evidence.push(`${(savingsBytes / 1024).toFixed(1)} KiB`);
     findings.push({ id, title, suggestion, group, score: audit.score,
       finding: typeof audit.displayValue === 'string' ? audit.displayValue.slice(0, 250) : 'Lighthouse identified an opportunity in this audit.',
-      savingsBytes: Number.isFinite(bytes) && bytes > 0 ? bytes : 0,
-      savingsMs: Number.isFinite(ms) && ms > 0 ? ms : 0 });
+      savingsBytes, savingsMs, priority: impactFor(savingsBytes, savingsMs),
+      impactEvidence: evidence.length ? `Estimated savings: ${evidence.join(' · ')}` : 'This audit did not provide a numeric savings estimate.' });
   }
-  findings.sort((a, b) => (a.score - b.score) || (b.savingsBytes - a.savingsBytes) || (b.savingsMs - a.savingsMs));
+  return findings;
+}
+function uniqueGroups(findings) {
   const groups = new Set();
   return findings.filter(item => {
     if (groups.has(item.group)) return false;
@@ -34,19 +50,22 @@ function collectChecks(audits = {}) {
     return true;
   });
 }
-
-// These priorities describe individual supported audits, not the page's overall score.
 export function getRecommendations(audits = {}) {
-  return collectChecks(audits).filter(item => item.score < .9).slice(0, 5)
-    .map(({ group, score, ...item }) => ({ ...item, priority: score < .5 ? 'high' : 'medium' }));
+  const ranks = { high: 0, medium: 1, low: 2, unknown: 3 };
+  const findings = collectChecks(audits).filter(item => item.score < 1);
+  const weight = item => Math.max((item.savingsMs ?? 0) / 500, (item.savingsBytes ?? 0) / (100 * 1024));
+  findings.sort((a, b) => ranks[a.priority] - ranks[b.priority] || weight(b) - weight(a) || a.score - b.score);
+  return uniqueGroups(findings).slice(0, 5).map(({ group, score, ...item }) => item);
 }
-
+// Retained API field for compatibility; passing checks are not improvement impacts.
 const passedLabels = {
   scripts: 'Unused JavaScript', styles: 'Unused CSS', images: 'Image delivery',
   loading: 'Render-blocking resources', compression: 'Text compression',
   'minify-js': 'JavaScript minification', 'minify-css': 'CSS minification', payload: 'Page payload',
 };
 export function getPassedChecks(audits = {}) {
-  return collectChecks(audits).filter(item => item.score >= .9)
+  const checks = collectChecks(audits);
+  const failedGroups = new Set(checks.filter(item => item.score < 1).map(item => item.group));
+  return uniqueGroups(checks.filter(item => item.score === 1 && !failedGroups.has(item.group)))
     .map(({ id, group }) => ({ id, title: passedLabels[group] }));
 }

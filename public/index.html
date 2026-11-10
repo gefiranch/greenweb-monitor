@@ -8,8 +8,8 @@
   <meta name="theme-color" content="#000000">
   <title>GreenWeb Monitor — Website performance & carbon estimates</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/styles.css?v=refined">
-  <script src="/app.js?v=refined" defer></script>
+  <link rel="stylesheet" href="/styles.css?v=network-motion">
+  <script src="/app.js?v=network-motion" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to analyzer</a>
@@ -52,11 +52,10 @@
               <button type="button" id="clear-url" class="clear-input" aria-label="Clear webpage URL" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6.1 4.7 3.9 3.9 3.9-3.9 1.4 1.4-3.9 3.9 3.9 3.9-1.4 1.4-3.9-3.9-3.9 3.9-1.4-1.4 3.9-3.9-3.9-3.9Z"/></svg></button>
               <button type="submit" id="analyze-button"><svg class="button-icon" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 2a6.5 6.5 0 1 0 3.8 11.8l3.9 3.9a1.1 1.1 0 0 0 1.6-1.6l-3.9-3.9A6.5 6.5 0 0 0 8.5 2Zm0 2.2a4.3 4.3 0 1 1 0 8.6 4.3 4.3 0 0 1 0-8.6Z"/></svg><span id="analyze-label">Analyze page</span></button>
             </div>
-            <div class="form-help"><p class="hint" id="input-hint">No https://? We’ll add it for you.</p><button type="button" id="example-url" class="text-button">Use an example</button></div>
+            <div class="form-help"><p class="hint" id="input-hint">No https://? We’ll add it for you.</p></div>
             <div class="audit-progress" id="audit-progress" hidden><div class="status" id="analysis-status" role="status" aria-live="polite" hidden>Running your mobile audit. Allow up to 55 seconds.</div><button type="button" id="cancel-analysis" class="text-button">Stop waiting</button></div>
             <p class="error" id="error-message" role="alert" hidden></p>
           </form>
-          <p class="privacy">Your URL goes to Google PageSpeed Insights. Results aren’t stored.</p>
         </div>
         <div class="hero-facts"><span>Google PageSpeed Insights</span><span>SWDM v4 carbon model</span><span>No saved history</span></div>
       </section>
@@ -71,9 +70,10 @@
         <p class="time">Tested <time id="analysis-time"></time> with Google PageSpeed Insights.</p>
         <section class="recommendations" aria-labelledby="recommendations-title">
           <div class="section-heading"><h2 id="recommendations-title">Where to improve</h2><span class="count" id="recommendation-count"></span></div>
-          <p class="section-note priority-note">Priorities reflect individual audit scores. Green marks checks that passed.</p>
+          <div class="priority-summary" aria-label="Estimated improvement impact"><span class="priority-badge priority-high">High impact <strong id="high-count">0</strong></span><span class="priority-badge priority-medium">Medium impact <strong id="medium-count">0</strong></span><span class="priority-badge priority-low">Low impact <strong id="low-count">0</strong></span></div>
+          <p class="section-note priority-note">Start with red for the largest estimated benefit. Yellow is moderate; green can wait. Counts reflect the recommendations below.</p>
+          <details class="impact-method"><summary>How impact is estimated</summary><p>High: at least 500 ms or 100 KiB saved. Medium: at least 100 ms or 20 KiB. Low: smaller reported savings. These are GreenWeb’s prioritization bands, based on Lighthouse estimates—not guaranteed gains or audit scores. Missing estimates stay unclassified. Savings can overlap and should not be added together.</p></details>
           <ol id="recommendation-list"></ol>
-          <div id="passed-checks" class="passed-checks" hidden><div class="passed-heading"><h3>Looking good</h3><span class="priority-badge priority-passed">Passed</span></div><ul id="passed-check-list"></ul><p>These supported checks passed this audit. They don’t mean every aspect of the page is optimized.</p></div>
           <p id="no-recommendations" class="section-note" hidden>No relevant findings were available in this audit. Other improvements may still be possible.</p>
         </section>
         <aside class="assumption"><h3>An estimate, with limits</h3><p id="hosting-assumption"></p><p>The result models transferred data. It does not directly measure energy use or actual emissions.</p></aside>
@@ -81,13 +81,36 @@
       <section class="features" id="how-it-works" aria-labelledby="features-title">
         <div class="features-heading"><p class="section-kicker">Built around your page</p><h2 id="features-title">Three perspectives.<br>One clearer picture.</h2></div>
         <div class="feature-grid">
-          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><path class="plain-dial-track" d="M86 108a44 44 0 1 1 68 0"/><path class="plain-dial-progress" d="M86 108a44 44 0 1 1 68 0" pathLength="100"/>
-<g fill="#8c98aa"><rect x="118.5" y="46" width="3" height="7" rx="1.5"/><rect x="118.5" y="46" width="3" height="7" rx="1.5" transform="rotate(-60 120 80)"/><rect x="118.5" y="46" width="3" height="7" rx="1.5" transform="rotate(60 120 80)"/></g>
-<g class="plain-needle"><g class="dial-idle"><path d="m116 79 30-23-23 30Z" fill="#c8d3e4"/></g></g><circle cx="120" cy="82" r="5" fill="#d9e2ee"/><rect x="106" y="114" width="28" height="3" rx="1.5" fill="#566273"/></svg></div><h3>See how your page performs.</h3><p>A mobile Lighthouse audit measures performance and finds opportunities to improve.</p><span class="feature-detail">Google PageSpeed Insights</span></article>
-          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><g class="plain-tile bottom"><g class="tile-idle"><path d="m120 80 49 25-49 25-49-25Z" fill="#46505f"/></g></g>
-<g class="plain-tile middle"><g class="tile-idle"><path d="m120 58 49 25-49 25-49-25Z" fill="#7b8798"/></g></g>
-<g class="plain-tile top"><g class="tile-idle"><path d="m120 36 49 25-49 25-49-25Z" fill="#c1cad8"/></g></g></svg></div><h3>Know what gets transferred.</h3><p>See your page’s network payload, measured in bytes from the actual audit.</p><span class="feature-detail">Actual page transfer size</span></article>
-          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><g class="plain-molecule"><g class="molecule-idle"><path class="molecule-bonds" d="M82 91 120 71 158 91M85 99 120 79 155 99" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><circle class="molecule-node node-left" cx="76" cy="97" r="18" fill="#8795a9"/><circle class="molecule-node node-center" cx="120" cy="72" r="23" fill="#c1cad8"/><circle class="molecule-node node-right" cx="164" cy="97" r="18" fill="#8795a9"/></g></g></svg></div><h3>Estimate your page’s footprint.</h3><p>Turn transferred bytes into estimated CO₂e per visit, with the assumptions explained.</p><span class="feature-detail">Sustainable Web Design Model v4</span></article>
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" class="instrument dial-instrument" aria-hidden="true">
+<defs><linearGradient id="dial-metal" x2=".8" y2="1"><stop stop-color="#ecf3ff"/><stop offset="1" stop-color="#7088a8"/></linearGradient></defs>
+<circle class="dial-shell" cx="120" cy="80" r="57" fill="#131a23" stroke="#39495f"/>
+<circle class="calibration-ring" cx="120" cy="80" r="53" fill="none" stroke="#7085a2" stroke-width="2" stroke-dasharray="1 10.1"/>
+<circle cx="120" cy="80" r="46" fill="#0c111a" stroke="#263345"/>
+<path class="dial-track" d="M86 108a44 44 0 1 1 68 0"/>
+<path class="dial-charge" d="M86 108a44 44 0 1 1 68 0" pathLength="100"/>
+<g class="dial-ticks" stroke="#8297b3" stroke-width="2"><path d="M120 47v5M91 59l4 3M85 84h5M149 59l-4 3M155 84h-5"/></g>
+<g class="needle-entry"><g class="needle-sweep"><path d="m115 79 37-25-27 33Z" fill="url(#dial-metal)"/><path d="m119 82-9 9" stroke="#5c6c83" stroke-width="3"/></g></g>
+<circle cx="120" cy="82" r="7" fill="#24344a" stroke="#a7c4e9"/><circle cx="120" cy="82" r="3" fill="#f1f6ff"/>
+<g class="dial-bars" fill="#b9d6f9"><rect x="106" y="112" width="5" height="3" rx="1.5"/><rect x="114" y="112" width="5" height="3" rx="1.5"/><rect x="122" y="112" width="5" height="3" rx="1.5"/><rect x="130" y="112" width="5" height="3" rx="1.5"/></g>
+<g class="dial-satellite"><circle cx="120" cy="23" r="3" fill="#e6f1ff"/><circle cx="120" cy="23" r="6" fill="none" stroke="#aecdf5" stroke-opacity=".25"/></g>
+</svg></div><h3>See how your page performs.</h3><p>A mobile Lighthouse audit measures performance and finds opportunities to improve.</p><span class="feature-detail">Google PageSpeed Insights</span></article>
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" class="instrument transfer-instrument" aria-hidden="true">
+<defs><linearGradient id="tile-metal" x2=".8" y2="1"><stop stop-color="#e6effe"/><stop offset="1" stop-color="#8b9fb9"/></linearGradient></defs>
+<path class="data-link" d="M70 61v44l50 25 50-25V61M120 85v45" fill="none" stroke="#3d526c" stroke-dasharray="2 5"/>
+<g class="data-layer layer-bottom"><g class="layer-turn"><path d="m120 82 50 25-50 25-50-25Z" fill="#29394e" stroke="#59718e"/><path d="m70 107 50 25 50-25v6l-50 25-50-25Z" fill="#182536"/><path class="layer-signal" d="m76 107 44 22 44-22" fill="none" stroke="#b4d7ff" stroke-width="2" pathLength="100"/></g></g>
+<g class="data-layer layer-middle"><g class="layer-turn"><path d="m120 59 50 25-50 25-50-25Z" fill="#617996" stroke="#9ab1d0"/><path d="m70 84 50 25 50-25v6l-50 25-50-25Z" fill="#354c67"/><path class="layer-signal" d="m76 84 44 22 44-22" fill="none" stroke="#e8f3ff" stroke-width="2" pathLength="100"/></g></g>
+<g class="data-layer layer-top"><g class="layer-turn"><path d="m120 36 50 25-50 25-50-25Z" fill="url(#tile-metal)" stroke="#e0ebfc"/><path d="m70 61 50 25 50-25v6l-50 25-50-25Z" fill="#617a99"/><path class="chip-outline" d="m120 48 25 13-25 13-25-13Z" fill="#344b68"/><path class="chip-core" d="m120 55 12 6-12 6-12-6Z" fill="#d3e7ff"/><path class="layer-signal" d="m76 61 44 22 44-22" fill="none" stroke="#fff" stroke-width="2" pathLength="100"/></g></g>
+<g class="data-packets" fill="#c9e2ff"><circle class="packet packet-a" cx="70" cy="78" r="2.5"/><circle class="packet packet-b" cx="170" cy="90" r="2.5"/><circle class="packet packet-c" cx="120" cy="119" r="2.5"/></g>
+</svg></div><h3>Know what gets transferred.</h3><p>See your page’s network payload, measured in bytes from the actual audit.</p><span class="feature-detail">Actual page transfer size</span></article>
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" class="instrument molecule-instrument" aria-hidden="true">
+<defs><radialGradient id="atom-fill" cx=".3" cy=".25"><stop stop-color="#edf5ff"/><stop offset=".6" stop-color="#b6cce8"/><stop offset="1" stop-color="#6a85a7"/></radialGradient></defs>
+<g class="atom-orbit orbit-one"><ellipse cx="120" cy="80" rx="68" ry="28" fill="none" stroke="#466080" stroke-width="1"/><circle cx="188" cy="80" r="3" fill="#d3e6ff"/></g>
+<g class="atom-orbit orbit-two"><ellipse cx="120" cy="80" rx="68" ry="28" fill="none" stroke="#466080" stroke-width="1"/><circle cx="52" cy="80" r="3" fill="#d3e6ff"/></g>
+<g class="molecule-entry"><g class="molecule-rotate"><path d="m86 94 34-20 34 20" fill="none" stroke="#7f9bbd" stroke-width="8"/><path d="m86 92 34-20 34 20" fill="none" stroke="#c1d8f3" stroke-width="2"/>
+<circle class="atom atom-left" cx="81" cy="97" r="17" fill="url(#atom-fill)"/><circle class="atom atom-right" cx="159" cy="97" r="17" fill="url(#atom-fill)"/><circle class="atom atom-center" cx="120" cy="72" r="24" fill="url(#atom-fill)"/>
+<circle class="atom-flash" cx="120" cy="72" r="29" fill="none" stroke="#bedaff" stroke-width="1"/>
+</g></g>
+</svg></div><h3>Estimate your page’s footprint.</h3><p>Turn transferred bytes into estimated CO₂e per visit, with the assumptions explained.</p><span class="feature-detail">Sustainable Web Design Model v4</span></article>
         </div>
       </section>
       <details class="methodology" id="methodology">

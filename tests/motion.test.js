@@ -14,10 +14,10 @@ async function globeHarness(reduce = false) {
     });
     return elements.get(id);
   };
-  let arcs = [];
+  let arcs = [], lines = [];
   let draws = 0, pending = new Map(), serial = 0, intersection;
   const gradient = { addColorStop() {} };
-  const context = new Proxy({ clearRect() { draws++; arcs=[]; }, arc(...args) { arcs.push(args); }, createRadialGradient() { return gradient; } }, {get(target, key) { return target[key] ?? (() => {}); }});
+  const context = new Proxy({ clearRect() { draws++; arcs=[]; lines=[]; }, moveTo(...args) { lines.push(args); }, lineTo(...args) { lines.push(args); }, arc(...args) { arcs.push(args); }, createRadialGradient() { return gradient; } }, {get(target, key) { return target[key] ?? (() => {}); }});
   get('globe-canvas').getContext = () => context;
   const preference = {matches: reduce, addEventListener(_event, fn) { this.change = fn; }};
   const doc = {querySelector: selector => get(selector.slice(1)), hidden: false, listeners: {}, addEventListener(name, fn) { this.listeners[name] = fn; }};
@@ -30,7 +30,7 @@ async function globeHarness(reduce = false) {
     ResizeObserver: class { observe() {} }
   });
   return {get, doc, preference, visible: value => intersection([{isIntersecting: value}]),
-    get arcs() {return arcs;}, get pending() {return pending.size;}, get draws() {return draws;},
+    get arcs() {return arcs;}, get lines() {return lines;}, get pending() {return pending.size;}, get draws() {return draws;},
     tick(time) {const callbacks=[...pending.values()];pending.clear();for (const fn of callbacks) fn(time);}
   };
 }
@@ -72,4 +72,13 @@ test('hover moves and brightens surface geometry without invalid canvas coordina
   for(let time=541;time<=1001;time+=40)hovered.tick(time);
   assert.ok(hovered.arcs.flat().every(Number.isFinite));
   assert.equal(hovered.pending,1);
+});
+
+test('rotating globe and raised routes keep clearance from the canvas top edge', async () => {
+  const app = await globeHarness(); app.visible(true);
+  app.get('globe-stage').listeners.pointerenter({clientX:400,clientY:90});
+  for (let time=1; time<=20001; time+=40) {
+    app.tick(time);
+    assert.ok(app.lines.every(([x,y]) => Number.isFinite(x) && y >= 20));
+  }
 });

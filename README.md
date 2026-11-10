@@ -212,13 +212,17 @@ See [docs/PRD_REVIEW.md](docs/PRD_REVIEW.md) and [docs/TEST_REPORT.md](docs/TEST
 
 ## 10. Half-globe hero, clean icons, and smooth navigation
 
-The interface keeps the true black background, graphite panels, silver controls, and restrained icy-blue accents. Navigation, field labels, focus/error states, result cards, methodology, and footer use a consistent spacing and type system. The redundant hero caption, navigation CTA, and motion control have been removed. The heading uses solid text and a larger line box to preserve descenders at every viewport size. The navigation remains available on mobile and uses smooth anchor scrolling unless reduced motion is enabled.
+The interface keeps the true black background, graphite panels, silver controls, and restrained icy-blue accents. Navigation, field labels, focus/error states, result cards, methodology, and footer use a consistent spacing and type system. The redundant hero caption, navigation CTA, and motion control have been removed. The heading uses a subtle white–silver–ice-blue gradient and a larger line box to preserve descenders at every viewport size. The navigation remains available on mobile and uses smooth anchor scrolling unless reduced motion is enabled.
 
 The globe uses native Canvas 2D projection in a wide hemisphere composition with a dark horizon fade: idle rotation at 0.14 rad/s (about 45 seconds per revolution), smoothly accelerated hover rotation at 0.38 rad/s (about 17 seconds per revolution) on fine pointers, and continuously travelling dots along connections. Hover adds a gently pulsing, brighter dot response around a smoothed pointer position. A bounded polynomial falloff replaces per-dot trigonometric waves, exponential falloff, and extra glow draws; interaction work is skipped after hover fades. It draws at no more than 30 frames per second and caps pixel density at 1.5. Its animation loop stops when the globe is offscreen, the tab is hidden, or reduced motion is enabled. Reduced motion retains a static globe. Inline SVG remains as the non-canvas fallback. No motion library, external font, image, video, polling, or runtime framework was added.
 
-The form accepts bare domains by adding HTTPS; explicit HTTP/HTTPS is preserved. **Use an example** fills a URL without requesting an audit. The clear control removes input. **Stop waiting** aborts the browser request and restores controls; it cannot guarantee that Google or the server stops an already-started audit. The in-flight lock and quota limits still apply. Loading is indeterminate rather than a fabricated progress percentage.
+The form accepts bare domains by adding HTTPS; explicit HTTP/HTTPS is preserved. The clear control removes input. **Stop waiting** aborts the browser request and restores controls; it cannot guarantee that Google or the server stops an already-started audit. The in-flight lock and quota limits still apply. Loading is indeterminate rather than a fabricated progress percentage.
 
-Compact filled glyphs appear in the form and analyze button. Large inline SVG illustrations use simple flat shapes without metallic gradients, floor shadows, or orbiting decorations. Hover first sweeps the needle, separates the transfer tiles, or tilts a three-node molecule and gently separates its outer nodes over 440–480 ms. After 500 ms, a small 3.2–4 second repeating motion keeps the wider needle sweep, layer drift, and floating molecule sway clearly visible and smooth while the pointer remains on its card. These loops run only for fine pointers, stop on mouse leave, and pause in hidden tabs. Native CSS eases button presses, focus rings, card borders, illustration movement, disclosure content, and pointer-submitted result reveals. Keyboard-submitted results receive focus immediately. Decorative CSS animation is limited to users without a reduced-motion preference.
+Compact filled glyphs appear in the form and analyze button. The redundant form privacy sentence and example action have been removed. The methodology still explains the Google PageSpeed data flow.
+
+Feature illustrations are inline SVG instruments with restrained silver/ice-blue shading. On hover, the performance dial sweeps its needle, rotates its calibration ring and sequences status lights. Data layers fan apart, rotate through a gentle assembly cycle and carry moving edge signals and packets. The molecular model precesses between two counter-rotating electron orbits with a repeating nucleus ripple. Entry transforms ease over 600 ms; sustained motion uses separate nested groups, so it builds on the entrance smoothly. These loops run only while hovered on a fine pointer, pause in hidden tabs and stay static with reduced motion. No motion library or media assets were added.
+
+The globe keeps its hemisphere and upper clearance. Brighter continental dots, a restrained atmospheric rim, moving connection trails and expanding hub pulses make the network readable. Hover adds a local ripple through the dots and smoothly increases rotation/packet speed. The animation remains limited to 30 fps and DPR 1.5, stops offscreen or in hidden tabs and is static with reduced motion. Native CSS eases buttons, focus rings, card borders and disclosure content. Keyboard-submitted results receive focus immediately.
 
 This preserves the existing backend and carbon calculation. It does not resolve an invalid Google API key, disabled API, or exhausted quota. Your local `.env` remains yours; the source archive contains only `.env.example`.
 
@@ -233,12 +237,25 @@ Open **http://127.0.0.1:3001/_qa**. The test page labels its synthetic PageSpeed
 See [docs/MOLECULE_GLOBE_MOTION.md](docs/MOLECULE_GLOBE_MOTION.md) for the current molecule and globe motion refinement. [docs/FOOTPRINT_MOTION.md](docs/FOOTPRINT_MOTION.md) records the previous footprint revision. [docs/CLEAN_ICON_REFINEMENT.md](docs/CLEAN_ICON_REFINEMENT.md) records the previous flat-icon revision. [docs/HEMISPHERE_REFINEMENT.md](docs/HEMISPHERE_REFINEMENT.md) records the hemisphere work and the previous metallic icon styling. [docs/INTERACTION_REFINEMENT.md](docs/INTERACTION_REFINEMENT.md) records the previous full-globe revision. [docs/BLACK_THEME.md](docs/BLACK_THEME.md) records the earlier static black design. [docs/UI_REFINEMENT.md](docs/UI_REFINEMENT.md) records the earlier forest design and its historical measurements. A language or framework choice alone does not establish environmental impact.
 
 
-## 11. Recommendation priorities
+## 11. Recommendation impact
 
-“Where to improve” uses each supported audit's score, not the overall performance score:
+“Where to improve” labels the estimated benefit of fixing each finding, not how badly an audit scored:
 
-- **Red — High priority:** audit score below 0.5.
-- **Yellow — Needs attention:** score from 0.5 up to (but excluding) 0.9.
-- **Green — Passed:** score at least 0.9, shown separately under “Looking good”.
+- **Red — High impact:** estimated savings of at least 500 ms or 100 KiB.
+- **Yellow — Medium impact:** at least 100 ms or 20 KiB, below the high band.
+- **Green — Low impact:** smaller reported savings; the improvement can wait.
+- **Gray — Impact not estimated:** no valid numeric savings data. Missing data never implies low impact.
 
-These are app display categories, not a prediction of optimization savings. Text badges accompany every color. Missing, invalid, manual, not-applicable, and error scores do not produce a green result. Related checks are grouped using the lowest score, so a failing image check cannot appear as a green image group. Up to five improvement recommendations remain ordered by score and available savings; passed groups are shown separately. The API adds `priority` (`high` or `medium`) to recommendations and `passedChecks` (`id`, `title`) to results.
+These are GreenWeb heuristics, not Google thresholds, guaranteed gains, or carbon-reduction predictions. The higher time/data band wins. Estimates use available `details.overallSavingsBytes`, `details.overallSavingsMs`, and `metricSavings` totalBytes/FCP/LCP values; the maximum valid value for each unit is used, never their sum. Estimates can overlap across recommendations and must not be added together. Page payload alone is not potential savings.
+
+Actionable supported audits have a finite score below 1. Related findings are grouped after impact sorting, retaining the largest estimated opportunity, with up to five recommendations displayed. Within a band, sorting uses the larger of time/500 ms and bytes/100 KiB. Counts refer only to displayed recommendations. Scores of 1 are excluded from recommendations. Invalid, manual, not-applicable and error scores are ignored. `priority` is now `high`, `medium`, `low`, or `unknown`; `impactEvidence` describes the numeric estimate. `passedChecks` remains in the API for compatibility but is not rendered as green improvement advice.
+
+## 12. Hero and form spacing
+
+The globe has more clearance below navigation and its projected routes remain inside the upper canvas edge. The URL form has larger inner padding on both sides, including mobile. The headline has a static, subtle white/silver/ice-blue gradient with a solid fallback for unsupported or forced-color modes; its padded line box preserves descenders. No extra animation or dependencies were added.
+
+Production builds use content-hashed asset revision tags. If replacing an older local copy, copy the entire project (including `src/` and `public/`), restart the Node server, and reload the page. See [docs/IMPACT_LABELS.md](docs/IMPACT_LABELS.md).
+
+## 13. Living network refinement
+
+See [docs/NETWORK_MOTION.md](docs/NETWORK_MOTION.md) for the globe and instrument-card update. The homepage no longer contains the example button or the redundant privacy sentence below the form.

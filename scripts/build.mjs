@@ -11,7 +11,7 @@ for (const [name, loader] of [['styles.css', 'css'], ['app.js', 'js']]) {
 let html = await readFile('public/index.html', 'utf8');
 for (const [name, content] of assets) {
   const hash = createHash('sha256').update(content).digest('hex').slice(0, 12);
-  html = html.replace(`/${name}?v=refined`, `/${name}?v=${hash}`);
+  html = html.replace(new RegExp(`/${name.replace('.', '\\.')}\\?v=[^"\\s]+`), `/${name}?v=${hash}`);
 }
 assets.set('index.html', html.replace(/>\s+</g, '><').trim());
 await rm('dist', { recursive: true, force: true });

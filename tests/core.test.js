@@ -79,12 +79,13 @@ test('maps network failure', async () => assert.rejects(analyzePageSpeed('https:
 test('times out and aborts upstream request', async () => assert.rejects(analyzePageSpeed('https://example.com/', { timeoutMs: 5, fetchImpl: async (url, { signal }) => new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))) }), e => e.code === 'API_TIMEOUT'));
 test('rejects non-JSON upstream response', async () => assert.rejects(analyzePageSpeed('https://example.com/', { fetchImpl: async () => new Response('<html>error</html>') }), e => e.code === 'INCOMPLETE_RESPONSE'));
 
-test('audit priorities honor exact thresholds and exclude invalid or unscored checks', () => {
-  for (const [score, expected] of [[0, 'high'], [.499, 'high'], [.5, 'medium'], [.899, 'medium'], [.9, 'passed'], [1, 'passed']]) {
-    const audits = { 'unused-javascript': { score } };
-    const findings = getRecommendations(audits), passed = getPassedChecks(audits);
-    assert.equal(findings[0]?.priority ?? 'passed', expected);
-    assert.equal(passed.length, expected === 'passed' ? 1 : 0);
+test('impact bands follow savings thresholds rather than audit severity', () => {
+  for (const [bytes, ms, expected] of [[0, 0, 'low'], [20479, 99, 'low'], [20480, 0, 'medium'], [0, 100, 'medium'], [102399, 499, 'medium'], [102400, 0, 'high'], [0, 500, 'high']]) {
+    for (const score of [0, .4, .8, .95]) {
+      const [finding] = getRecommendations({ 'unused-javascript': { score, details: { overallSavingsBytes: bytes, overallSavingsMs: ms } } });
+      assert.equal(finding.priority, expected);
+      assert.match(finding.impactEvidence, /Estimated savings/);
+    }
   }
   for (const score of [null, undefined, NaN, Infinity, -1, 2, '1']) {
     const audits = { 'unused-javascript': { score } };
@@ -92,11 +93,36 @@ test('audit priorities honor exact thresholds and exclude invalid or unscored ch
     assert.deepEqual(getPassedChecks(audits), []);
   }
   for (const scoreDisplayMode of ['error', 'manual', 'notApplicable', 'not_applicable']) {
+    assert.deepEqual(getRecommendations({ 'unused-javascript': { score: .1, scoreDisplayMode, details: { overallSavingsMs: 500 } } }), []);
     assert.deepEqual(getPassedChecks({ 'unused-javascript': { score: 1, scoreDisplayMode } }), []);
   }
 });
-test('a failed image audit prevents a contradictory green image group', () => {
-  const audits = { 'modern-image-formats': { score: 1 }, 'image-delivery-insight': { score: .4 } };
-  assert.equal(getRecommendations(audits)[0].priority, 'high');
+test('missing and invalid savings are unclassified, never green', () => {
+  for (const value of [undefined, null, -1, NaN, Infinity, '1000']) {
+    const [finding] = getRecommendations({ 'unused-javascript': { score: 0, details: { overallSavingsMs: value, overallSavingsBytes: value } } });
+    assert.equal(finding.priority, 'unknown');
+    assert.equal(finding.savingsMs, null);
+  }
+});
+test('metric savings take the largest valid estimate without summing or using payload', () => {
+  const [finding] = getRecommendations({ 'unused-javascript': { score: .95, details: { overallSavingsMs: 0 }, metricSavings: { FCP: 120, LCP: 510 } } });
+  assert.equal(finding.savingsMs, 510);
+  assert.equal(finding.priority, 'high');
+  assert.equal(getRecommendations({ 'total-byte-weight': { score: .1, numericValue: 9000000 } })[0].priority, 'unknown');
+});
+test('largest savings rank first and win related audit groups despite higher scores', () => {
+  const audits = {
+    'unused-javascript': { score: 0, details: { overallSavingsBytes: 1000 } },
+    'unused-css-rules': { score: .5, details: { overallSavingsBytes: 25000 } },
+    'modern-image-formats': { score: 0, details: { overallSavingsMs: 50 } },
+    'image-delivery-insight': { score: .95, metricSavings: { LCP: 700 } },
+    'render-blocking-insight': { score: .1, metricSavings: { FCP: 1000 } },
+  };
+  assert.deepEqual(getRecommendations(audits).map(item => item.id), ['render-blocking-insight', 'image-delivery-insight', 'unused-css-rules', 'unused-javascript']);
+});
+test('passing checks never become low-impact advice or contradict a related finding', () => {
+  const audits = { 'modern-image-formats': { score: 1 }, 'image-delivery-insight': { score: .95, details: { overallSavingsBytes: 1000 } } };
+  assert.equal(getRecommendations(audits)[0].priority, 'low');
   assert.deepEqual(getPassedChecks(audits), []);
+  assert.deepEqual(getRecommendations({ 'unused-javascript': { score: 1, details: { overallSavingsMs: 1000 } } }), []);
 });

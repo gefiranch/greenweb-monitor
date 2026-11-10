@@ -8,12 +8,10 @@ let busy = false;
 let activeController;
 let cancelled = false;
 const clearButton = document.querySelector('#clear-url');
-const exampleButton = document.querySelector('#example-url');
 const progress = document.querySelector('#audit-progress');
 const cancelButton = document.querySelector('#cancel-analysis');
 function updateField() {
   clearButton.hidden = !input.value || busy;
-  exampleButton.disabled = busy;
 }
 function normalizeInput(value) {
   const trimmed = value.trim();
@@ -36,6 +34,9 @@ function renderResults(data, motion) {
   const time = document.getElementById('analysis-time');
   time.dateTime = data.analyzedAt;
   time.textContent = new Date(data.analyzedAt).toLocaleString();
+  text('high-count', data.recommendations.filter(item => item.priority === 'high').length);
+  text('medium-count', data.recommendations.filter(item => item.priority === 'medium').length);
+  text('low-count', data.recommendations.filter(item => item.priority === 'low').length);
   const list = document.getElementById('recommendation-list');
   list.replaceChildren();
   for (const item of data.recommendations) {
@@ -46,26 +47,17 @@ function renderResults(data, motion) {
     suggestion.textContent = item.suggestion;
     const finding = document.createElement('p');
     finding.className = 'finding';
-    finding.textContent = item.finding;
+    finding.textContent = ['high', 'medium', 'low'].includes(item.priority) && item.impactEvidence ? item.impactEvidence : item.finding;
     const priority = document.createElement('span');
-    const level = item.priority === 'high' ? 'high' : item.priority === 'medium' ? 'medium' : 'unknown';
+    const level = item.priority === 'high' ? 'high' : item.priority === 'medium' ? 'medium' : item.priority === 'low' ? 'low' : 'unknown';
     li.dataset.priority = level;
     priority.className = `priority-badge priority-${level}`;
-    priority.textContent = level === 'high' ? 'High priority' : level === 'medium' ? 'Needs attention' : 'Review';
+    priority.textContent = level === 'high' ? 'High impact' : level === 'medium' ? 'Medium impact' : level === 'low' ? 'Low impact' : 'Impact not estimated';
     li.append(heading, suggestion, finding, priority);
     list.append(li);
   }
   text('recommendation-count', `${data.recommendations.length} ${data.recommendations.length === 1 ? 'finding' : 'findings'}`);
   document.getElementById('no-recommendations').hidden = data.recommendations.length > 0;
-  const passed = document.getElementById('passed-checks');
-  const passedList = document.getElementById('passed-check-list');
-  passedList.replaceChildren();
-  for (const check of data.passedChecks || []) {
-    const item = document.createElement('li');
-    item.textContent = check.title;
-    passedList.append(item);
-  }
-  passed.hidden = !data.passedChecks?.length;
   results.dataset.motion = motion;
   results.hidden = false;
   results.focus();
@@ -145,12 +137,6 @@ clearButton.addEventListener('click', () => {
   input.value = ''; input.removeAttribute('aria-invalid'); error.hidden = true;
   progress.hidden = true; status.hidden = true; updateField(); input.focus();
 });
-exampleButton.addEventListener('click', () => {
-  if (busy) return;
-  input.value = 'https://example.com'; input.removeAttribute('aria-invalid');
-  error.hidden = true; progress.hidden = true; status.hidden = true;
-  updateField(); input.focus();
-});
 cancelButton.addEventListener('click', () => {
   if (!activeController) return;
   cancelled = true; activeController.abort();
@@ -173,7 +159,7 @@ document.addEventListener('visibilitychange', () => { document.documentElement.d
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
   let visible = false, hovered = false, frame = 0;
   let hoverAmount = 0, pointerX = 0, pointerY = 0, targetX = 0, targetY = 0;
-  let previous = 0, angle = -.3, speed = .14, phase = 0, width = 0, height = 0;
+  let previous = 0, angle = -.3, speed = .14, phase = 0, travel = 0, width = 0, height = 0;
   const toSphere = (lon, lat) => {
     const a = lon * Math.PI / 180, b = lat * Math.PI / 180;
     return [Math.cos(b) * Math.sin(a), -Math.sin(b), Math.cos(b) * Math.cos(a)];
@@ -221,8 +207,8 @@ document.addEventListener('visibilitychange', () => { document.documentElement.d
     return points;
   });
   function draw() {
-    const radius = Math.min(width * .55, height * 1.04);
-    const cx=width/2, cy=height*1.1, co=Math.cos(angle), si=Math.sin(angle);
+    const radius = Math.min(width * .55, height * .94);
+    const cx=width/2, cy=height*1.17, co=Math.cos(angle), si=Math.sin(angle);
     function project(p) {
       const x=p[0]*co+p[2]*si, z=p[2]*co-p[0]*si;
       const y=p[1]*.966-z*.259, depth=p[1]*.259+z*.966;
@@ -230,50 +216,57 @@ document.addEventListener('visibilitychange', () => { document.documentElement.d
     }
     ctx.clearRect(0,0,width,height);
     const halo=ctx.createRadialGradient(cx,cy, radius*.6,cx,cy,radius*1.45);
-    halo.addColorStop(0,'rgba(111,152,213,.14)');halo.addColorStop(1,'rgba(0,0,0,0)');
+    halo.addColorStop(0,'rgba(119,169,240,.23)');halo.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=halo;ctx.fillRect(0,0,width,height);
     const sphere=ctx.createRadialGradient(cx-radius*.3,cy-radius*.5,0,cx,cy,radius);
-    sphere.addColorStop(0,'#19243a');sphere.addColorStop(.65,'#080e18');sphere.addColorStop(1,'#020407');
+    sphere.addColorStop(0,'#1c304c');sphere.addColorStop(.65,'#09121f');sphere.addColorStop(1,'#03070c');
     ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fillStyle=sphere;ctx.fill();
-    ctx.strokeStyle='rgba(168,196,236,.24)';ctx.lineWidth=.8;ctx.stroke();
-    function line(points, color, thickness) {
+    ctx.strokeStyle='rgba(173,210,255,.48)';ctx.lineWidth=1.2;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,radius+2,Math.PI*1.12,Math.PI*1.88);
+    ctx.strokeStyle='rgba(132,184,255,.12)';ctx.lineWidth=4;ctx.stroke();
+    function line(points, color, thickness, start=0, end=points.length) {
       ctx.beginPath();let pen=false;
-      for(const p of points) {
-        const [x,y,z]=project(p);
+      for(let index=start; index<end; index++) {
+        const [x,y,z]=project(points[index]);
         if(z<.02){pen=false;continue;}
         if(pen)ctx.lineTo(x,y);else ctx.moveTo(x,y);
         pen=true;
       }
       ctx.strokeStyle=color;ctx.lineWidth=thickness;ctx.stroke();
     }
-    for(const g of grid)line(g,'rgba(152,180,222,.11)',.65);
+    for(const g of grid)line(g,'rgba(152,180,222,.13)',.65);
     const interactive = hoverAmount > .001;
     const pulse = interactive ? .85 + Math.sin(phase * 2) * .15 : 0;
+    const rippleRadius = (phase * 70) % 190;
     for(const d of dots) {
       let [x,y,z]=project(d);if(z<0||y>height+12)continue;
       let influence=0;
       if (interactive) {
         const dx=x-pointerX, dy=y-pointerY;
         const falloff=Math.max(0,1-(dx*dx+dy*dy)/22500);
-        influence=hoverAmount*falloff*falloff*pulse;
+        const distance=Math.sqrt(dx*dx+dy*dy);
+        const ripple=Math.max(0,1-Math.abs(distance-rippleRadius)/28);
+        influence=hoverAmount*(falloff*falloff*pulse+ripple*.6);
         x+=dx/150*influence*5;
         y+=dy/150*influence*5;
       }
-      const size=.6+z*.55+influence*.75;
+      const size=.72+z*.65+influence*.85;
       ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);
-      ctx.fillStyle=`rgba(184,209,247,${Math.min(1,.25+z*.56+influence*.45)})`;ctx.fill();
+      ctx.fillStyle=`rgba(184,209,247,${Math.min(1,.32+z*.6+influence*.4)})`;ctx.fill();
     }
     routes.forEach((route,i)=>{
-      line(route,'rgba(163,197,246,.42)',.8);
-      const t=(phase*.16+i*.137)%1, idx=t*40, a=Math.floor(idx), f=idx-a;
+      line(route,'rgba(151,190,244,.24)',.8);
+      const t=(travel+i*.137)%1, idx=t*40, a=Math.floor(idx), f=idx-a;
+      line(route,`rgba(184,218,255,${.6+hoverAmount*.25})`,1.3,Math.max(0,a-5),a+1);
       const p=route[a].map((n,k)=>n+(route[Math.min(a+1,40)][k]-n)*f);
       const [x,y,z]=project(p);if(z<.02)return;
       ctx.beginPath();ctx.arc(x,y,2.1,0,Math.PI*2);ctx.fillStyle='#e0ecff';ctx.fill();
-      ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fillStyle='rgba(171,197,239,.1)';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,5.5,0,Math.PI*2);ctx.fillStyle='rgba(171,207,255,.15)';ctx.fill();
     });
-    for(const h of hubs){const [x,y,z]=project(h);if(z<.05)continue;
+    for(let i=0;i<hubs.length;i++){const [x,y,z]=project(hubs[i]);if(z<.05)continue;
       ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#b8d2f7';ctx.fill();
-      ctx.beginPath();ctx.arc(x,y,6.5,0,Math.PI*2);ctx.strokeStyle='rgba(184,210,247,.25)';ctx.lineWidth=1;ctx.stroke();
+      const wave=(phase*.5+i*.17)%1;
+      ctx.beginPath();ctx.arc(x,y,5+wave*7,0,Math.PI*2);ctx.strokeStyle=`rgba(184,218,255,${(1-wave)*.5})`;ctx.lineWidth=.8;ctx.stroke();
     }
   }
 
@@ -284,7 +277,7 @@ document.addEventListener('visibilitychange', () => { document.documentElement.d
     if (elapsed < 1000/30) return;
     const dt=Math.min(elapsed/1000,.08); previous=now;
     speed += ((hovered ? .38 : .14)-speed)*(1-Math.exp(-dt*2.5));
-    angle=(angle+speed*dt)%(Math.PI*2);phase+=dt;
+    angle=(angle+speed*dt)%(Math.PI*2);phase+=dt;travel=(travel+(.18+hoverAmount*.05)*dt)%1;
     hoverAmount += ((hovered ? 1 : 0)-hoverAmount)*(1-Math.exp(-dt*3.5));
     const pointerEase=1-Math.exp(-dt*8);
     pointerX+=(targetX-pointerX)*pointerEase;

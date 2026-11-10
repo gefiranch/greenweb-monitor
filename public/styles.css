@@ -33,7 +33,7 @@ nav { display: flex; gap: 30px; margin-left: auto; margin-right: 0; }
 nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
 main { min-width: 0; }
 .analyzer { position: relative; text-align: center; padding-bottom: 62px; scroll-margin-top: 24px; }
-.hero-art { width: min(1100px, 100%); height: 300px; margin: 0 auto -8px; overflow: hidden; position: relative; background: transparent; mask-image: linear-gradient(#000 52%, #000b 72%, transparent 100%); }
+.hero-art { width: min(1100px, 100%); height: 320px; margin: 18px auto -8px; overflow: hidden; position: relative; background: transparent; mask-image: linear-gradient(#000 52%, #000b 72%, transparent 100%); }
 .planet { width: 100%; height: 100%; display: block; }
 .planet-grid { fill: none; stroke: #8191aa; stroke-opacity: .18; stroke-width: .8; }
 .orbit-line { fill: none; stroke: #aaa; stroke-opacity: .12; stroke-width: .7; }
@@ -41,19 +41,18 @@ h1 { position: relative; margin: 0 auto 12px; padding: .1em .05em .16em; max-wid
 .intro { color: #aaa; font-size: 15px; line-height: 1.7; max-width: 590px; margin: auto; }
 .analyzer-surface { max-width: 680px; margin: 32px auto 0; text-align: left; }
 .field-label { display: block; margin: 0; color: #c5c5c5; font-size: 12px; }
-.input-row { display: flex; align-items: center; gap: 10px; padding: 7px; border: 1px solid #414141; border-radius: 14px; background: linear-gradient(#181818, #0c0c0c); box-shadow: 0 0 0 4px #ffffff04, inset 0 1px 0 #ffffff0a, 0 10px 40px #000; }
+.input-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #414141; border-radius: 14px; background: linear-gradient(#181818, #0c0c0c); box-shadow: 0 0 0 4px #ffffff04, inset 0 1px 0 #ffffff0a, 0 10px 40px #000; }
 .input-row:focus-within { border-color: #8c99ad; }
-.input-icon { margin-left: 12px; width: 18px; height: 18px; fill: #a2aab7; stroke: none; }
-input { width: 100%; min-width: 0; flex: 1; background: transparent; color: var(--foreground); border: 0; border-radius: 5px; padding: 11px 0; font-size: 14px; }
+.input-icon { margin-left: 2px; width: 18px; height: 18px; fill: #a2aab7; stroke: none; }
+input { width: 100%; min-width: 0; flex: 1; background: transparent; color: var(--foreground); border: 0; border-radius: 5px; padding: 12px 6px; font-size: 14px; }
 input::placeholder { color: #858585; opacity: 1; }
 input:focus-visible { outline: none; }
 input[aria-invalid="true"] { color: #ffe2dc; }
 #analyze-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 156px; border: 1px solid #ffffffbf; border-radius: 9px; padding: 12px 20px; background: linear-gradient(#fff, #c5c5c5); box-shadow: inset 0 1px 0 #fff, 0 2px 5px #0006; color: #151515; font-weight: 550; cursor: pointer; white-space: nowrap; }
 #analyze-button:hover:not(:disabled) { background: #fff; }
 #analyze-button:disabled { opacity: .7; cursor: wait; }
-.hint, .privacy { color: #999; font-size: 11px; }
+.hint { color: #999; font-size: 11px; }
 .hint { margin: 0; text-align: left; }
-.privacy { margin-top: 9px; text-align: center; }
 .status { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 0; color: #c7d5e9; font-size: 12px; }
 form[aria-busy="true"] .status::before { content: ""; width: 12px; height: 12px; flex: 0 0 12px; border: 1.5px solid #444; border-top-color: #ddd; border-radius: 50%; }
 .error { color: var(--error); font-size: 13px; margin: 17px 3px 0; overflow-wrap: anywhere; }
@@ -130,19 +129,26 @@ button:disabled { cursor: default; }
 .text-button { padding: 7px 0; border: 0; border-radius: 4px; background: transparent; color: #b8c7df; font-size: 11px; text-underline-offset: 4px; white-space: nowrap; }
 .text-button:hover { color: #fff; text-decoration: underline; }
 .text-button:disabled { opacity: .4; text-decoration: none; }
-.privacy { margin-top: 6px; font-size: 11px; color: #9d9d9d; }
 .audit-progress { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 15px; margin-top: 13px; border: 1px solid #2a3039; border-radius: 10px; background: #0e1117; }
 .audit-progress .status { text-align: left; justify-content: flex-start; }
 .audit-progress .text-button { padding: 7px; }
 .error { padding: 13px 15px; background: #211513; border: 1px solid #5d3630; border-radius: 10px; margin: 13px 0 0; }
-/* Plain feature shapes; entry and sustained motion use separate groups. */
+/* Three compact instruments, each with its own visual motion. */
 .button-icon { width: 17px; height: 17px; fill: currentColor; }
 form[aria-busy="true"] .button-icon { opacity: .4; }
-.plain-dial-track { fill: none; stroke: #39414d; stroke-width: 4; stroke-linecap: round; }
-.plain-dial-progress { fill: none; stroke: #c1cad8; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 42; }
-.plain-needle, .dial-idle { transform-origin: 120px 82px; }
-.plain-needle { transform: rotate(-16deg); }
-.plain-molecule, .molecule-idle { transform-origin: 120px 84px; }
+.instrument { overflow: visible; }
+.dial-track { fill: none; stroke: #263649; stroke-width: 4; }
+.dial-charge { fill: none; stroke: #bedaff; stroke-width: 4; stroke-dasharray: 100; stroke-dashoffset: 42; }
+.needle-entry, .needle-sweep { transform-origin: 120px 82px; }
+.needle-entry { transform: rotate(-24deg); }
+.calibration-ring, .dial-satellite, .atom-orbit, .molecule-entry, .molecule-rotate { transform-origin: 120px 80px; }
+.layer-turn, .data-layer { transform-origin: 120px 84px; }
+.layer-signal { stroke-dasharray: 18 82; stroke-dashoffset: 18; opacity: 0; }
+.chip-core { transform-origin: 120px 61px; }
+.orbit-one { transform: rotate(-28deg); }
+.orbit-two { transform: rotate(52deg); opacity: .65; }
+.atom-flash { transform-origin: 120px 72px; opacity: 0; }
+.data-packets { opacity: 0; }
 .brand-mark { filter: drop-shadow(0 2px 5px #ffffff16); }
 .metric { background: linear-gradient(145deg, #1c1c1c, #0c0c0c); }
 .metric dt { min-height: 24px; }
@@ -163,32 +169,50 @@ summary { min-height: 62px; border-bottom: 0; font-size: 13px; }
   form[aria-busy="true"] .status:not([hidden])::before { animation: working 1.2s linear infinite; }
   [data-page-hidden="true"] .status::before { animation-play-state: paused; }
   #analyze-button:active:not(:disabled) { transform: scale(.975); }
-  .plain-needle, .plain-tile, .plain-molecule, .molecule-node { transition: transform 440ms var(--ease-out); }
-  .plain-dial-progress { transition: stroke-dashoffset 480ms var(--ease-out); }
-  @media (hover: hover) {
-    .feature-panel:hover, .metric:hover { border-color: #484d56; box-shadow: inset 0 1px 0 #ffffff0d; }
-    .feature-panel:hover .plain-needle { transform: rotate(23deg); }
-    .feature-panel:hover .plain-dial-progress { stroke-dashoffset: 15; }
-    .feature-panel:hover .plain-tile.top { transform: translateY(-7px); }
-    .feature-panel:hover .plain-tile.bottom { transform: translateY(5px); }
-    .feature-panel:hover .plain-molecule { transform: translateY(-3px) rotate(-8deg); }
-    .feature-panel:hover .node-left { transform: translate(-3px, 2px); }
-    .feature-panel:hover .node-right { transform: translate(3px, 2px); }
-    #analyze-button:hover:not(:disabled) { box-shadow: 0 2px 16px #ffffff1c; }
-  }
+  .needle-entry, .data-layer, .molecule-entry { transition: transform 600ms var(--ease-out); }
+  .dial-charge { transition: stroke-dashoffset 700ms var(--ease-out), stroke 400ms ease; }
+  .data-packets, .layer-signal { transition: opacity 450ms ease; }
   @media (hover: hover) and (pointer: fine) {
-    .feature-panel:hover .dial-idle { animation: dial-breathe 3.2s ease-in-out 500ms infinite; }
-    .feature-panel:hover .tile-idle { animation: tile-breathe 3.6s ease-in-out 500ms infinite; }
-    .feature-panel:hover .middle .tile-idle { animation-delay: 800ms; }
-    .feature-panel:hover .bottom .tile-idle { animation-delay: 1100ms; }
-    .feature-panel:hover .molecule-idle { animation: molecule-float 4s ease-in-out 500ms infinite; }
-    [data-page-hidden="true"] .feature-panel .dial-idle,
-    [data-page-hidden="true"] .feature-panel .tile-idle,
-    [data-page-hidden="true"] .feature-panel .molecule-idle { animation-play-state: paused; }
+    .feature-panel:hover, .metric:hover { border-color: #536177; box-shadow: inset 0 1px 0 #ffffff12; }
+    #analyze-button:hover:not(:disabled) { box-shadow: 0 2px 16px #ffffff1c; }
+    .feature-panel:hover .needle-entry { transform: rotate(42deg); }
+    .feature-panel:hover .dial-charge { stroke-dashoffset: 8; stroke: #e8f4ff; }
+    .feature-panel:hover .needle-sweep { animation: needle-search 3.8s cubic-bezier(.45,0,.25,1) 600ms infinite; }
+    .feature-panel:hover .calibration-ring { animation: instrument-spin 18s linear infinite; }
+    .feature-panel:hover .dial-satellite { animation: instrument-spin 5s cubic-bezier(.4,0,.6,1) infinite; }
+    .feature-panel:hover .dial-bars rect { animation: signal-light 1.8s ease-in-out infinite; }
+    .feature-panel:hover .dial-bars rect:nth-child(2) { animation-delay: 160ms; }
+    .feature-panel:hover .dial-bars rect:nth-child(3) { animation-delay: 320ms; }
+    .feature-panel:hover .dial-bars rect:nth-child(4) { animation-delay: 480ms; }
+    .feature-panel:hover .layer-top { transform: translateY(-9px) rotate(-5deg); }
+    .feature-panel:hover .layer-bottom { transform: translateY(7px) rotate(5deg); }
+    .feature-panel:hover .layer-turn { animation: layer-assemble 4.4s cubic-bezier(.45,0,.25,1) 600ms infinite; }
+    .feature-panel:hover .layer-middle .layer-turn { animation-delay: 800ms; animation-direction: reverse; }
+    .feature-panel:hover .layer-bottom .layer-turn { animation-delay: 1000ms; }
+    .feature-panel:hover .layer-signal { opacity: 1; animation: data-stream 2.4s linear infinite; }
+    .feature-panel:hover .chip-core { animation: chip-process 2.4s ease-in-out infinite; }
+    .feature-panel:hover .data-packets { opacity: 1; }
+    .feature-panel:hover .packet { animation: packet-upload 2s ease-in-out infinite; }
+    .feature-panel:hover .packet-b { animation-delay: 650ms; }
+    .feature-panel:hover .packet-c { animation-delay: 1100ms; }
+    .feature-panel:hover .molecule-entry { transform: scale(1.07) rotate(-12deg); }
+    .feature-panel:hover .molecule-rotate { animation: molecule-precess 6s cubic-bezier(.45,0,.25,1) 600ms infinite; }
+    .feature-panel:hover .orbit-one { animation: orbit-forward 8s linear infinite; }
+    .feature-panel:hover .orbit-two { animation: orbit-backward 10s linear infinite; }
+    .feature-panel:hover .atom-flash { animation: atom-ripple 2.8s ease-out 300ms infinite; }
+    [data-page-hidden="true"] .feature-panel svg * { animation-play-state: paused !important; }
   }
-  @keyframes dial-breathe { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(12deg); } 70% { transform: rotate(-10deg); } }
-  @keyframes tile-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-  @keyframes molecule-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(12deg); } }
+  @keyframes needle-search { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-44deg); } 60% { transform: rotate(18deg); } 80% { transform: rotate(8deg); } }
+  @keyframes instrument-spin { to { transform: rotate(360deg); } }
+  @keyframes signal-light { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+  @keyframes layer-assemble { 0%,100% { transform: rotate(0) scale(1); } 45% { transform: rotate(10deg) scale(.94); } 70% { transform: rotate(-4deg) scale(1.02); } }
+  @keyframes data-stream { to { stroke-dashoffset: -82; } }
+  @keyframes chip-process { 0%,100% { transform: scale(1); opacity: .7; } 50% { transform: scale(.65); opacity: 1; } }
+  @keyframes packet-upload { 0% { transform: translateY(10px); opacity: 0; } 25%,70% { opacity: 1; } 100% { transform: translateY(-22px); opacity: 0; } }
+  @keyframes molecule-precess { 0%,100% { transform: rotate(0) scale(1); } 35% { transform: rotate(22deg) scale(.94); } 70% { transform: rotate(-12deg) scale(1.02); } }
+  @keyframes orbit-forward { from { transform: rotate(-28deg); } to { transform: rotate(332deg); } }
+  @keyframes orbit-backward { from { transform: rotate(52deg); } to { transform: rotate(-308deg); } }
+  @keyframes atom-ripple { 0% { transform: scale(.85); opacity: 0; } 20% { opacity: .6; } 100% { transform: scale(1.5); opacity: 0; } }
   @keyframes planet-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @keyframes result-arrive { from { opacity: .3; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes working { to { transform: rotate(360deg); } }
@@ -200,21 +224,21 @@ summary { min-height: 62px; border-bottom: 0; font-size: 13px; }
   .brand-mark { width: 22px; height: 22px; }
   nav { display: flex; flex-basis: 100%; justify-content: space-between; gap: 14px; margin: 0; }
   nav a { min-height: 40px; display: inline-flex; align-items: center; font-size: 12px; }
-  .hero-art { height: 195px; width: calc(100% + 36px); max-width: none; margin-left: -18px; margin-bottom: -6px; }
+  .hero-art { height: 220px; margin-top: 12px; width: calc(100% + 36px); max-width: none; margin-left: -18px; margin-bottom: -6px; }
   h1 { font-size: clamp(37px, 8.4vw, 58px); letter-spacing: -1.8px; margin-top: 0; }
   .intro { max-width: 410px; font-size: 13px; }
   .desktop-break { display: none; }
   .analyzer-surface { margin-top: 25px; }
-  .input-row { flex-wrap: wrap; gap: 4px 10px; padding: 8px; }
-  .input-icon { margin-left: 5px; width: 16px; height: 16px; }
-  input { font-size: 16px; padding: 10px 1px; }
+  .input-row { flex-wrap: wrap; gap: 8px; padding: 14px; }
+  .input-icon { margin-left: 2px; width: 16px; height: 16px; }
+  input { font-size: 16px; padding: 12px 6px; }
   #analyze-button { flex-basis: 100%; margin-top: 4px; padding: 13px; }
   .clear-input { flex: 0 0 36px; }
   .audit-progress { align-items: flex-start; }
   .status { font-size: 11px; }
   .text-button { min-height: 38px; }
   .methodology { padding-left: 17px; padding-right: 17px; }
-  .hint, .privacy { font-size: 10px; }
+  .hint { font-size: 10px; }
   .hero-facts { flex-wrap: wrap; gap: 7px 0; font-size: 10px; margin-top: 27px; }
   .hero-facts span { padding: 0 10px; }
   .hero-facts span:last-child { display: none; }
@@ -249,10 +273,22 @@ summary { min-height: 62px; border-bottom: 0; font-size: 13px; }
 .priority-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .priority-high { color: #ffaaaa; background: #351e22; }
 .priority-medium { color: #f0cd7d; background: #332b1b; }
-.priority-passed { color: #9cddb6; background: #1b3025; }
+.priority-low { color: #9cddb6; background: #1b3025; }
 .priority-unknown { color: #c1cad8; background: #26282d; }
-.passed-checks { padding: 18px; margin-top: 18px; border: 1px solid #2a4535; border-left: 3px solid #7bc99a; border-radius: 12px; background: #101713; }
-.passed-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-#passed-check-list { display: flex; flex-wrap: wrap; list-style: none; gap: 8px; padding: 0; margin: 15px 0 12px; }
-.recommendations #passed-check-list > li { padding: 6px 10px; border: 1px solid #2a3e31; border-radius: 6px; font-size: 12px; color: #b7d5c2; }
-.passed-checks p, .priority-note { font-size: 12px; color: #a8b4ac; line-height: 1.65; }
+.priority-note { font-size: 12px; color: #a8b4ac; line-height: 1.65; }
+
+.priority-summary { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+.priority-summary .priority-badge { padding: 8px 11px; }
+.priority-summary strong { margin-left: 5px; font-size: 12px; font-variant-numeric: tabular-nums; }
+
+#recommendation-list > li[data-priority="low"] { border-left-color: #7bc99a; }
+.impact-method { margin: 10px 0 18px; font-size: 12px; color: #aeb3bd; line-height: 1.65; }
+.impact-method summary { cursor: pointer; width: fit-content; }
+.impact-method summary:focus-visible { outline: 2px solid #c8dcf5; outline-offset: 5px; }
+.impact-method p { max-width: 76ch; margin-top: 10px; }
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  #title { background: linear-gradient(115deg, #ffffff 14%, #eceef2 43%, #becbdc 76%, #e2eaf4 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
+}
+@media (forced-colors: active) {
+  #title { background: none; color: CanvasText; }
+}

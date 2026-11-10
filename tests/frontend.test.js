@@ -111,10 +111,10 @@ test('bare domains get HTTPS without changing explicit protocols', async () => {
   }
   assert.equal(requests.length, 2);
 });
-test('example and clear controls edit the input without an API call', async () => {
+test('clear control edits the input without an API call', async () => {
   let calls = 0; const app = await harness(() => { calls++; });
-  app.get('example-url').listeners.click();
-  assert.equal(app.get('website-url').value, 'https://example.com');
+  app.get('website-url').value = 'https://example.com';
+  app.get('website-url').listeners.input();
   assert.equal(app.get('clear-url').hidden, false);
   app.get('clear-url').listeners.click();
   assert.equal(app.get('website-url').value, '');
@@ -136,19 +136,22 @@ test('stopping a request aborts the browser fetch and restores the form', async 
   assert.match(app.get('analysis-status').textContent, /Stopped waiting/);
 });
 
-test('results label audit priorities and clear passed checks on reanalysis', async () => {
+test('results label improvement impact, count low-impact recommendations and reset on reanalysis', async () => {
   let calls = 0;
   const result = fixtureResult([
-    { title: 'Scripts', priority: 'high' }, { title: 'Styles', priority: 'medium' }, { title: 'Unknown', priority: '<script>' }
+    { title: 'Scripts', priority: 'high' }, { title: 'Styles', priority: 'medium' }, { title: 'Small saving', priority: 'low', impactEvidence: 'Estimated savings: 5.0 KiB' }, { title: 'Unknown', priority: '<script>' }
   ]);
   const app = await harness(async () => Response.json(++calls === 1 ? result : { ...fixtureResult([]), passedChecks: [] }));
   app.get('website-url').value = 'https://example.com/'; await app.submit();
   const items = app.get('recommendation-list').children;
-  assert.deepEqual(items.map(item => item.children[3].textContent), ['High priority', 'Needs attention', 'Review']);
-  assert.equal(items[2].dataset.priority, 'unknown');
-  assert.equal(app.get('passed-checks').hidden, false);
-  assert.equal(app.get('passed-check-list').children[0].textContent, 'Page payload');
+  assert.deepEqual(items.map(item => item.children[3].textContent), ['High impact', 'Medium impact', 'Low impact', 'Impact not estimated']);
+  assert.equal(items[3].dataset.priority, 'unknown');
+  assert.equal(items[2].children[2].textContent, 'Estimated savings: 5.0 KiB');
+  assert.equal(app.get('high-count').textContent, 1);
+  assert.equal(app.get('medium-count').textContent, 1);
+  assert.equal(app.get('low-count').textContent, 1);
   await app.submit();
-  assert.equal(app.get('passed-checks').hidden, true);
-  assert.equal(app.get('passed-check-list').children.length, 0);
+  assert.equal(app.get('high-count').textContent, 0);
+  assert.equal(app.get('medium-count').textContent, 0);
+  assert.equal(app.get('low-count').textContent, 0);
 });
