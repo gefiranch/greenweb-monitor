@@ -32,9 +32,12 @@ export function createApp(options = {}) {
   return app;
 }
 
+const app = createApp();
+export default app;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const port = Number(args[args.indexOf('--port') + 1]) || Number(process.env.PORT) || 3000;
   const host = args.includes('--host') ? args[args.indexOf('--host') + 1] : '0.0.0.0';
-  createApp().listen(port, host, () => console.info(`GreenWeb Monitor is running on port ${port}`));
+  app.listen(port, host, () => console.info(`GreenWeb Monitor is running on port ${port}`));
 }
