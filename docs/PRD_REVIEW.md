@@ -16,6 +16,6 @@ The MVP scope and API contract are implementable as written. Development follows
 | URL safety | Normalize and validate URL/IP syntax; never directly fetch the target. Google resolves DNS and follows target redirects. Public-name-to-private-DNS resolution is not performed by this app. |
 | Public app / no login | No application auth exists. The initial Sites deployment remains owner-private under platform defaults; public sharing needs an explicit audience change. Ordinary Node hosting can be public. |
 | Simple rate limiting | Bounded ephemeral per-client and global counters with concurrency protection. Document per-process/isolate limits. |
-| Phase 2 | Stopped at functional MVP styling; no optional features. |
+| UI refinement | The owner explicitly requested visual refinement on 10 November 2026; see UI_REFINEMENT.md. No optional product features were added. |
 
 Open acceptance evidence: successful live Google audit with usable quota, public self-audit, mobile Lighthouse performance score, and full WCAG conformance audit. These cannot be inferred from a successful render or mocked tests.

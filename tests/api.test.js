@@ -76,6 +76,7 @@ test('Node/Express serves the frontend and connected API over HTTP', async t => 
   const origin = `http://127.0.0.1:${server.address().port}`;
   const page = await fetch(origin);
   assert.equal(page.status, 200);
+  assert.ok(!page.headers.get('cache-control').includes('max-age=3600'));
   assert.match(await page.text(), /GreenWeb Monitor/);
   assert.equal(page.headers.get('x-powered-by'), null);
   assert.ok(page.headers.get('content-security-policy').includes("script-src 'self'"));

@@ -3,64 +3,101 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Analyze a public webpage’s mobile performance, transfer size, and estimated carbon footprint with PageSpeed Insights and SWDM v4.">
+  <meta name="description" content="Check a public webpage’s mobile performance, transfer size, and estimated carbon footprint with PageSpeed Insights and SWDM v4.">
   <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
   <title>GreenWeb Monitor — Website performance & carbon estimates</title>
-  <link rel="stylesheet" href="/styles.css">
-  <script src="/app.js" defer></script>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/styles.css?v=refined">
+  <script src="/app.js?v=refined" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to analyzer</a>
   <div class="page">
-    <header>
-      <a class="brand" href="/" aria-label="GreenWeb Monitor home"><span class="mark" aria-hidden="true">g</span>GreenWeb <span class="brand-light">Monitor</span></a>
-      <a href="#methodology" class="method-link">Methodology</a>
+    <header class="header">
+      <a class="brand" href="/" aria-label="GreenWeb Monitor home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="m4 16 8-12 3 7 9-4-8 17-3-9Z"/></svg><span>GreenWeb<span class="brand-note"> Monitor</span></span></a>
+      <nav aria-label="Main navigation"><a href="#analyzer">Analyzer</a><a href="#how-it-works">How it works</a><a href="#method-details">Methodology</a></nav>
     </header>
     <main id="main">
-      <section class="analyzer" aria-labelledby="title">
-        <div class="eyebrow">WEBSITE EFFICIENCY / MOBILE AUDIT</div>
-        <h1>A lighter page.<br>A smaller footprint.</h1>
-        <p class="intro">Check a webpage’s performance, see how much data it transfers, and estimate its carbon footprint per visit.</p>
-        <form id="analyze-form" novalidate>
-          <label for="website-url">Website URL</label>
-          <div class="input-row">
-            <input id="website-url" name="url" type="url" inputmode="url" placeholder="https://example.com" maxlength="2048" autocomplete="url" spellcheck="false" required aria-describedby="input-hint error-message">
-            <button type="submit" id="analyze-button">Analyze page</button>
-          </div>
-          <p class="hint" id="input-hint">One public page at a time. Your URL is sent to Google PageSpeed Insights.</p>
-          <div class="status" id="analysis-status" role="status" aria-live="polite" hidden><span class="loading-dot" aria-hidden="true"></span><span id="status-text">Running a mobile analysis. This can take up to 55 seconds.</span></div>
-          <p class="error" id="error-message" role="alert" hidden></p>
-        </form>
-        <div class="specs"><span>Mobile performance</span><span>Transfer size</span><span>Estimated CO₂e / visit</span></div>
+      <section class="analyzer" id="analyzer" aria-labelledby="title">
+        <div class="hero-art" id="globe-stage"><canvas id="globe-canvas" aria-hidden="true"></canvas><svg class="planet" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="planet-fill" cx="50%" cy="10%" r="85%"><stop stop-color="#303a4c"/><stop offset=".58" stop-color="#080a0e"/><stop offset="1" stop-color="#000"/></radialGradient>
+    <linearGradient id="planet-fade" x2="0" y2="1"><stop offset=".35" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
+    <linearGradient id="planet-rim"><stop stop-color="#3b424f" stop-opacity="0"/><stop offset=".5" stop-color="#b7ccef"/><stop offset="1" stop-color="#3b424f" stop-opacity="0"/></linearGradient>
+    <pattern id="land-dots" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#b7ccef"/></pattern>
+    <clipPath id="planet-clip"><circle cx="500" cy="344" r="294"/></clipPath>
+    <mask id="planet-mask"><rect width="1000" height="360" fill="url(#planet-fade)"/></mask>
+  </defs>
+  <g mask="url(#planet-mask)">
+    <path class="orbit-line" d="M0 155Q500 208 1000 155M0 218Q500 196 1000 218M0 344Q500 125 1000 344"/>
+    <circle cx="500" cy="344" r="294" fill="url(#planet-fill)" stroke="url(#planet-rim)" stroke-width="1.5"/>
+    <g clip-path="url(#planet-clip)" class="planet-grid">
+      <ellipse cx="500" cy="344" rx="294" ry="35"/><ellipse cx="500" cy="344" rx="294" ry="85"/><ellipse cx="500" cy="344" rx="294" ry="145"/><ellipse cx="500" cy="344" rx="294" ry="205"/><ellipse cx="500" cy="344" rx="294" ry="260"/>
+      <ellipse cx="500" cy="344" rx="55" ry="294"/><ellipse cx="500" cy="344" rx="125" ry="294"/><ellipse cx="500" cy="344" rx="200" ry="294"/><ellipse cx="500" cy="344" rx="260" ry="294"/>
+      <path fill="url(#land-dots)" stroke="none" opacity=".65" d="m294 142 31-26 35 3 14-22 42-18 40 2 15 19-17 28-22 7-9 23-33 12-9 26-29 4-11 23-19-15-20 6-16-29Zm100 75 24 8 19 31-8 29 21 20-14 35-20 27-15-12 1-34-19-28 4-30-15-23Zm111-128 29-9 27 15 10 23-24 14-19-8-20 15-18-15Zm28 63 24-22 39 6 30-17 57 26 43 31 2 32-29 4-28-23-24 15-28-4-20 28-19-11-16 14-7 35-26-4-23-39 1-35 13-19Zm15 67 26 8 16 31-15 37-18 16-20-24-9-37Zm151 57 23-6 29 20-4 19-29 1-24-16Z"/>
+    </g>
+    <ellipse cx="500" cy="243" rx="341" ry="48" fill="none" stroke="#abc5ef" stroke-opacity=".3" transform="rotate(-15 500 243)"/>
+    <g fill="#e4edff" stroke="#a6bcdf" stroke-width="1"><path d="M396 147v-23M648 195v-27M538 77V53"/><circle cx="396" cy="124" r="2.5"/><circle cx="648" cy="168" r="2.5"/><circle cx="538" cy="53" r="2.5"/></g>
+  </g>
+</svg></div>
+        <h1 id="title">Every byte matters.</h1>
+        <p class="intro">A clear view of your page’s performance, data transfer,<br class="desktop-break"> and estimated carbon footprint.</p>
+        <div class="analyzer-surface">
+          <form id="analyze-form" novalidate>
+            <div class="field-heading"><label class="field-label" for="website-url">Your webpage</label><span class="audit-badge"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M5 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H5Zm0 2h6v8H5V3Zm2 10h2v1H7v-1Z"/></svg>Mobile audit</span></div>
+            <div class="input-row">
+              <svg class="input-icon" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM4 7h2.6a15 15 0 0 0 0 6H4a6.4 6.4 0 0 1 0-6Zm4.1 0h3.8a14 14 0 0 1 0 6H8.1a14 14 0 0 1 0-6ZM10 3.5c.6 0 1.3.9 1.6 2H8.4c.3-1.1 1-2 1.6-2Zm3.4 3.5H16a6.4 6.4 0 0 1 0 6h-2.6a15 15 0 0 0 0-6Zm-5 7.5h3.2c-.3 1.1-1 2-1.6 2s-1.3-.9-1.6-2Z"/></svg>
+              <input id="website-url" name="url" type="text" inputmode="url" placeholder="example.com or paste a URL" autocapitalize="none" maxlength="2048" autocomplete="url" spellcheck="false" required aria-describedby="input-hint error-message">
+              <button type="button" id="clear-url" class="clear-input" aria-label="Clear webpage URL" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6.1 4.7 3.9 3.9 3.9-3.9 1.4 1.4-3.9 3.9 3.9 3.9-1.4 1.4-3.9-3.9-3.9 3.9-1.4-1.4 3.9-3.9-3.9-3.9Z"/></svg></button>
+              <button type="submit" id="analyze-button"><svg class="button-icon" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M8.5 2a6.5 6.5 0 1 0 3.8 11.8l3.9 3.9a1.1 1.1 0 0 0 1.6-1.6l-3.9-3.9A6.5 6.5 0 0 0 8.5 2Zm0 2.2a4.3 4.3 0 1 1 0 8.6 4.3 4.3 0 0 1 0-8.6Z"/></svg><span id="analyze-label">Analyze page</span></button>
+            </div>
+            <div class="form-help"><p class="hint" id="input-hint">No https://? We’ll add it for you.</p><button type="button" id="example-url" class="text-button">Use an example</button></div>
+            <div class="audit-progress" id="audit-progress" hidden><div class="status" id="analysis-status" role="status" aria-live="polite" hidden>Running your mobile audit. Allow up to 55 seconds.</div><button type="button" id="cancel-analysis" class="text-button">Stop waiting</button></div>
+            <p class="error" id="error-message" role="alert" hidden></p>
+          </form>
+          <p class="privacy">Your URL goes to Google PageSpeed Insights. Results aren’t stored.</p>
+        </div>
+        <div class="hero-facts"><span>Google PageSpeed Insights</span><span>SWDM v4 carbon model</span><span>No saved history</span></div>
       </section>
       <section id="results" aria-labelledby="results-title" tabindex="-1" hidden>
-        <div class="section-heading"><h2 id="results-title">Page analysis</h2><span class="tag">MOBILE</span></div>
+        <div class="section-heading"><h2 id="results-title">Your page analysis</h2><span class="tag">Mobile audit</span></div>
         <p id="result-url" class="result-url"></p>
-        <div class="metrics">
-          <div class="metric"><h3>Performance score</h3><div><strong id="performance-score"></strong><span class="unit"> / 100</span></div><p id="performance-label"></p></div>
-          <div class="metric"><h3>Page transfer size</h3><div><strong id="transfer-size"></strong><span class="unit" id="transfer-unit"></span></div><p id="transfer-bytes"></p></div>
-          <div class="metric"><h3>Estimated Carbon Footprint</h3><div><strong id="carbon-value"></strong><span class="unit"> g CO₂e</span></div><p>Per visit · SWDM v4</p></div>
-        </div>
-        <p class="time">Analyzed <time id="analysis-time"></time> · Google PageSpeed Insights</p>
+        <dl class="metrics">
+          <div class="metric"><dt><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4C9 3 3 8 6 16c7 4 14-2 13-12ZM5 21l10-11"/></svg>Estimated Carbon Footprint</dt><dd><strong id="carbon-value"></strong><span class="unit"> g CO₂e</span><p>Per visit, using SWDM v4</p></dd></div>
+          <div class="metric"><dt><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18a9 9 0 1 1 16 0M12 12l5-5M8 19h8"/><circle cx="12" cy="12" r="1.5"/></svg>Performance score</dt><dd><strong id="performance-score"></strong><span class="unit"> / 100</span><p id="performance-label"></p></dd></div>
+          <div class="metric"><dt><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Zm-9 10 9 5 9-5m-18 5 9 5 9-5"/></svg>Page transfer size</dt><dd><strong id="transfer-size"></strong><span class="unit" id="transfer-unit"></span><p id="transfer-bytes"></p></dd></div>
+        </dl>
+        <p class="time">Tested <time id="analysis-time"></time> with Google PageSpeed Insights.</p>
         <section class="recommendations" aria-labelledby="recommendations-title">
-          <div class="section-heading"><h2 id="recommendations-title">What to improve</h2><span class="count" id="recommendation-count"></span></div>
-          <p class="section-note">Up to five opportunities from this page’s Lighthouse audit.</p>
+          <div class="section-heading"><h2 id="recommendations-title">Where to improve</h2><span class="count" id="recommendation-count"></span></div>
           <ol id="recommendation-list"></ol>
-          <p id="no-recommendations" hidden>No relevant optimization findings were available in this audit. This does not establish that the page has no other issues.</p>
+          <p id="no-recommendations" class="section-note" hidden>No relevant findings were available in this audit. Other improvements may still be possible.</p>
         </section>
-        <aside class="assumption"><h3>About this estimate</h3><p id="hosting-assumption"></p><p>Based on transferred bytes and a model. This is not a direct measurement of energy use or actual emissions.</p></aside>
+        <aside class="assumption"><h3>An estimate, with limits</h3><p id="hosting-assumption"></p><p>The result models transferred data. It does not directly measure energy use or actual emissions.</p></aside>
       </section>
-      <section class="methodology" id="methodology" aria-labelledby="method-title">
-        <div class="section-heading"><h2 id="method-title">How the estimate works</h2><span class="small-label">SWDM v4</span></div>
-        <div class="method-grid">
-          <div><span class="step">01 / MEASURE</span><h3>Test the page</h3><p>Google PageSpeed Insights runs a mobile Lighthouse performance audit. Transfer size comes from the total network payload in bytes.</p></div>
-          <div><span class="step">02 / ESTIMATE</span><h3>Model the footprint</h3><p>CO2.js uses the Sustainable Web Design Model v4 to estimate grams of CO₂e per visit from those bytes.</p></div>
-          <div><span class="step">03 / INTERPRET</span><h3>Understand the limits</h3><p>Green hosting is unverified, so the model uses its non-green assumption. Results vary by test conditions and are estimates.</p></div>
+      <section class="features" id="how-it-works" aria-labelledby="features-title">
+        <div class="features-heading"><p class="section-kicker">Built around your page</p><h2 id="features-title">Three perspectives.<br>One clearer picture.</h2></div>
+        <div class="feature-grid">
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><path class="plain-dial-track" d="M86 108a44 44 0 1 1 68 0"/><path class="plain-dial-progress" d="M86 108a44 44 0 1 1 68 0" pathLength="100"/>
+<g fill="#8c98aa"><rect x="118.5" y="46" width="3" height="7" rx="1.5"/><rect x="118.5" y="46" width="3" height="7" rx="1.5" transform="rotate(-60 120 80)"/><rect x="118.5" y="46" width="3" height="7" rx="1.5" transform="rotate(60 120 80)"/></g>
+<g class="plain-needle"><g class="dial-idle"><path d="m116 79 30-23-23 30Z" fill="#c8d3e4"/></g></g><circle cx="120" cy="82" r="5" fill="#d9e2ee"/><rect x="106" y="114" width="28" height="3" rx="1.5" fill="#566273"/></svg></div><h3>See how your page performs.</h3><p>A mobile Lighthouse audit measures performance and finds opportunities to improve.</p><span class="feature-detail">Google PageSpeed Insights</span></article>
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><g class="plain-tile bottom"><g class="tile-idle"><path d="m120 80 49 25-49 25-49-25Z" fill="#46505f"/></g></g>
+<g class="plain-tile middle"><g class="tile-idle"><path d="m120 58 49 25-49 25-49-25Z" fill="#7b8798"/></g></g>
+<g class="plain-tile top"><g class="tile-idle"><path d="m120 36 49 25-49 25-49-25Z" fill="#c1cad8"/></g></g></svg></div><h3>Know what gets transferred.</h3><p>See your page’s network payload, measured in bytes from the actual audit.</p><span class="feature-detail">Actual page transfer size</span></article>
+          <article class="feature-panel"><div class="feature-visual"><svg viewBox="0 0 240 160" aria-hidden="true"><g class="plain-molecule"><g class="molecule-idle"><path class="molecule-bonds" d="M82 91 120 71 158 91M85 99 120 79 155 99" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><circle class="molecule-node node-left" cx="76" cy="97" r="18" fill="#8795a9"/><circle class="molecule-node node-center" cx="120" cy="72" r="23" fill="#c1cad8"/><circle class="molecule-node node-right" cx="164" cy="97" r="18" fill="#8795a9"/></g></g></svg></div><h3>Estimate your page’s footprint.</h3><p>Turn transferred bytes into estimated CO₂e per visit, with the assumptions explained.</p><span class="feature-detail">Sustainable Web Design Model v4</span></article>
         </div>
-        <p class="source-links"><a href="https://developers.google.com/speed/docs/insights/v5/about" target="_blank" rel="noopener noreferrer">PageSpeed documentation</a><a href="https://developers.thegreenwebfoundation.org/co2js/models/overview/" target="_blank" rel="noopener noreferrer">Carbon model documentation</a></p>
       </section>
+      <details class="methodology" id="methodology">
+        <summary>How the estimate works<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.3 5.8 1.4-1.4L8 7.7l3.3-3.3 1.4 1.4L8 10.5Z"/></svg></summary>
+        <div class="method-body" id="method-details">
+          <p>Google PageSpeed Insights runs a mobile Lighthouse audit. CO2.js uses its total network payload in bytes to estimate grams of CO₂e per visit with the Sustainable Web Design Model v4.</p>
+          <p>Green hosting is unverified, so the model uses its non-green assumption. This does not establish the website’s actual energy source. Results vary with test conditions.</p>
+          <div class="source-links"><a href="https://developers.google.com/speed/docs/insights/v5/about" target="_blank" rel="noopener noreferrer">PageSpeed documentation</a><a href="https://developers.thegreenwebfoundation.org/co2js/models/overview/" target="_blank" rel="noopener noreferrer">Carbon model documentation</a></div>
+        </div>
+      </details>
     </main>
-    <footer><span>GreenWeb Monitor <span class="footer-version">/ Functional MVP</span></span><span>No analytics. No saved analysis history.</span></footer>
+    <footer><a class="footer-brand" href="#analyzer">GreenWeb Monitor</a><span>No tracking. No saved history.</span><a href="#method-details">About the estimate</a></footer>
   </div>
 </body>
 </html>

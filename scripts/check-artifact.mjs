@@ -13,7 +13,12 @@ try {
     const response = await worker.fetch(new Request(`https://greenweb.example${path}`), {});
     assert.equal(response.status, 200);
     assert.ok(response.headers.get('Content-Type').startsWith(type));
-    assert.ok((await response.text()).length > 100);
+    const text = await response.text();
+    assert.ok(text.length > 100);
+    if (path === '/') {
+      assert.match(text, /styles\.css\?v=[a-f0-9]{12}/);
+      assert.match(text, /app\.js\?v=[a-f0-9]{12}/);
+    }
   }
   const response = await worker.fetch(new Request('https://greenweb.example/api/analyze', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: 'https://example.com/' }),

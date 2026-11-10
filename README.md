@@ -1,6 +1,6 @@
 # GreenWeb Monitor
 
-A function-first implementation of `PRD_GreenWeb_Monitor_v1.0.docx`, Phase 1. Enter one public HTTP/HTTPS URL to request a real mobile PageSpeed audit, read the transfer size, and estimate grams of CO₂e per visit with CO2.js / SWDM v4. The interface uses a small, dark, responsive HTML/CSS/vanilla JavaScript page.
+A functional implementation of `PRD_GreenWeb_Monitor_v1.0.docx`, with the UI refinement requested on 10 November 2026. Enter one public HTTP/HTTPS URL to request a real mobile PageSpeed audit, read the transfer size, and estimate grams of CO₂e per visit with CO2.js / SWDM v4. The interface uses a small, dark, responsive HTML/CSS/vanilla JavaScript page.
 
 **Current verification limit:** Google rejected the real anonymous PageSpeed request with HTTP 429 (quota exhausted). Successful live PageSpeed → CO2 analysis is therefore still unverified. Configure a valid API key with available quota, then run the live test below. The production UI never substitutes test data.
 
@@ -37,7 +37,7 @@ Keep the key in `.env` or your deployment's server environment. Never put it in 
 npm start
 ```
 
-Open **http://localhost:3000**. Enter a full public URL, such as `https://example.com/`, and choose **Analyze page** or press Enter. A normal submission performs one Google request, with `strategy=mobile` and `category=performance`. There are no automatic retries or background requests.
+Open **http://localhost:3000**. Enter a public domain or URL, such as `example.com` or `https://example.com/`, and choose **Analyze page** or press Enter. A normal submission performs one Google request, with `strategy=mobile` and `category=performance`. There are no automatic retries or background requests.
 
 `npm run dev -- --host 127.0.0.1 --port 4173` also works for preview tooling. The default standalone server binds to `0.0.0.0`.
 
@@ -208,4 +208,26 @@ References checked during implementation:
 - No URL/result logs, analytics, database, localStorage, cookies, or stored analysis history. Google receives submitted URLs. Hosting providers may retain standard platform request/security logs outside the app's control.
 - API responses use `no-store`; security headers and text-only DOM rendering reduce injection risk. No stack traces or upstream secrets are returned.
 
-See [docs/PRD_REVIEW.md](docs/PRD_REVIEW.md) and [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for scope decisions and verification limits. Phase 2 features and major visual refinement have not been started.
+See [docs/PRD_REVIEW.md](docs/PRD_REVIEW.md) and [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for scope decisions and verification limits. The requested visual refinement is included; optional product features remain outside scope.
+
+## 10. Half-globe hero, clean icons, and smooth navigation
+
+The interface keeps the true black background, graphite panels, silver controls, and restrained icy-blue accents. Navigation, field labels, focus/error states, result cards, methodology, and footer use a consistent spacing and type system. The redundant hero caption, navigation CTA, and motion control have been removed. The heading uses solid text and a larger line box to preserve descenders at every viewport size. The navigation remains available on mobile and uses smooth anchor scrolling unless reduced motion is enabled.
+
+The globe uses native Canvas 2D projection in a wide hemisphere composition with a dark horizon fade: idle rotation at 0.14 rad/s (about 45 seconds per revolution), smoothly accelerated hover rotation at 0.38 rad/s (about 17 seconds per revolution) on fine pointers, and continuously travelling dots along connections. Hover adds a gently pulsing, brighter dot response around a smoothed pointer position. A bounded polynomial falloff replaces per-dot trigonometric waves, exponential falloff, and extra glow draws; interaction work is skipped after hover fades. It draws at no more than 30 frames per second and caps pixel density at 1.5. Its animation loop stops when the globe is offscreen, the tab is hidden, or reduced motion is enabled. Reduced motion retains a static globe. Inline SVG remains as the non-canvas fallback. No motion library, external font, image, video, polling, or runtime framework was added.
+
+The form accepts bare domains by adding HTTPS; explicit HTTP/HTTPS is preserved. **Use an example** fills a URL without requesting an audit. The clear control removes input. **Stop waiting** aborts the browser request and restores controls; it cannot guarantee that Google or the server stops an already-started audit. The in-flight lock and quota limits still apply. Loading is indeterminate rather than a fabricated progress percentage.
+
+Compact filled glyphs appear in the form and analyze button. Large inline SVG illustrations use simple flat shapes without metallic gradients, floor shadows, or orbiting decorations. Hover first sweeps the needle, separates the transfer tiles, or tilts a three-node molecule and gently separates its outer nodes over 440–480 ms. After 500 ms, a small 3.2–4 second repeating motion keeps the wider needle sweep, layer drift, and floating molecule sway clearly visible and smooth while the pointer remains on its card. These loops run only for fine pointers, stop on mouse leave, and pause in hidden tabs. Native CSS eases button presses, focus rings, card borders, illustration movement, disclosure content, and pointer-submitted result reveals. Keyboard-submitted results receive focus immediately. Decorative CSS animation is limited to users without a reduced-motion preference.
+
+This preserves the existing backend and carbon calculation. It does not resolve an invalid Google API key, disabled API, or exhausted quota. Your local `.env` remains yours; the source archive contains only `.env.example`.
+
+For manual interface checks without a Google key, use the isolated fixture-only test server:
+
+```bash
+node tests/preview-ui.mjs
+```
+
+Open **http://127.0.0.1:3001/_qa**. The test page labels its synthetic PageSpeed response and lets you inspect 360 px, 390 px, and 960 px frames. It runs the real CO2.js calculation against that fixture. This helper is never imported by `src/server.js` or `worker/index.js`, and is not a production analysis. Stop it with Ctrl+C.
+
+See [docs/MOLECULE_GLOBE_MOTION.md](docs/MOLECULE_GLOBE_MOTION.md) for the current molecule and globe motion refinement. [docs/FOOTPRINT_MOTION.md](docs/FOOTPRINT_MOTION.md) records the previous footprint revision. [docs/CLEAN_ICON_REFINEMENT.md](docs/CLEAN_ICON_REFINEMENT.md) records the previous flat-icon revision. [docs/HEMISPHERE_REFINEMENT.md](docs/HEMISPHERE_REFINEMENT.md) records the hemisphere work and the previous metallic icon styling. [docs/INTERACTION_REFINEMENT.md](docs/INTERACTION_REFINEMENT.md) records the previous full-globe revision. [docs/BLACK_THEME.md](docs/BLACK_THEME.md) records the earlier static black design. [docs/UI_REFINEMENT.md](docs/UI_REFINEMENT.md) records the earlier forest design and its historical measurements. A language or framework choice alone does not establish environmental impact.

@@ -23,7 +23,7 @@ export function createApp(options = {}) {
     for (const [key, value] of response.headers) res.setHeader(key, value);
     res.status(response.status).send(await response.text());
   });
-  app.use(express.static(fileURLToPath(new URL('../public', import.meta.url)), { etag: true, maxAge: '1h' }));
+  app.use(express.static(fileURLToPath(new URL('../public', import.meta.url)), { etag: true, maxAge: 0 }));
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Page not found.' } }));
   app.use((error, req, res, next) => {
     const status = error.type === 'entity.too.large' ? 413 : 400;

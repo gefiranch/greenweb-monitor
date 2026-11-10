@@ -2,7 +2,7 @@ import { co2 } from '@tgwf/co2';
 import { AppError } from './errors.js';
 
 const model = new co2({ model: 'swd', version: 4 });
-export const hostingAssumption = 'Green hosting has not been verified. The model uses non-green hosting (green = false); this does not establish the website’s actual energy source.';
+export const hostingAssumption = 'Green hosting has not been verified. The model uses the non-green hosting assumption; this does not establish the website’s actual energy source.';
 
 export function estimateCarbon(transferBytes) {
   if (!Number.isSafeInteger(transferBytes) || transferBytes < 0) {

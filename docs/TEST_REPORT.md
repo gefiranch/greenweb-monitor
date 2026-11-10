@@ -33,3 +33,11 @@ No successful real external PageSpeed analysis was obtained. A valid operator AP
 - Distributed rate limiting: the MVP intentionally uses per-process/isolate memory only.
 
 The hosting platform's initial access is owner-private. Public anonymous accessibility and an external self-audit require an explicit audience change or a public Node deployment. Phase 2 work has not been started.
+
+## UI refinement update, 10 November 2026
+
+The original Phase 1 results above are historical. The later owner-requested refinement is documented in UI_REFINEMENT.md. Current automated checks pass 86 tests, including pointer/keyboard result activation and page-visibility handling. The deployment bundle and isolated UI fixture preview are checked separately. Live external API success and the application's own Lighthouse score remain unverified.
+
+## Reference-led black UI update, 10 November 2026
+
+The owner replaced the forest design with the supplied black/silver/globe references. See BLACK_THEME.md for current frontend measurements and verification. The existing API configuration limitation is unchanged.
