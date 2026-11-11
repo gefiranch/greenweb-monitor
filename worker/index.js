@@ -1,10 +1,12 @@
 import html from '../public/index.html';
+import favicon from '../public/favicon.svg';
 import css from '../public/styles.css';
 import javascript from '../public/app.js';
 import { createAnalyzeHandler, securityHeaders, json } from '../src/api.js';
 
 const analyze = createAnalyzeHandler();
 const assets = new Map([
+  ['/favicon.svg', [favicon, 'image/svg+xml']],
   ['/', [html, 'text/html; charset=utf-8']],
   ['/index.html', [html, 'text/html; charset=utf-8']],
   ['/styles.css', [css, 'text/css; charset=utf-8']],

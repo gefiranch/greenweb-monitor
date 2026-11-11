@@ -148,6 +148,98 @@ form.addEventListener('pointerdown', () => { form.dataset.input = 'pointer'; });
 form.addEventListener('keydown', () => { form.dataset.input = 'keyboard'; });
 document.addEventListener('visibilitychange', () => { document.documentElement.dataset.pageHidden = String(document.hidden); });
 
+// Cursor water: click-only ripples with a bounded pool and no idle timer.
+(() => {
+  const layer = document.querySelector('#water-background');
+  if (!layer || !document.createElement || typeof layer.animate !== 'function') return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const cursor = document.createElement('div'); cursor.className = 'custom-cursor';
+  cursor.setAttribute('aria-hidden','true'); cursor.hidden=true; document.body.appendChild(cursor);
+  const rings = Array.from({length: 12}, () => { const el=document.createElement('span'); el.className='water-ripple'; layer.appendChild(el); return el; });
+  let x=0,y=0,active=false,index=0;
+  function pulse() {
+    if (reduced.matches || document.hidden || !fine.matches) return;
+    const el=rings[index++%rings.length]; el.getAnimations().forEach(a=>a.cancel());
+    el.style.left=x+'px'; el.style.top=y+'px';
+    el.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.03)'},{opacity:.9,offset:.12},{opacity:.38,offset:.55},{opacity:0,transform:'translate(-50%,-50%) scale(1)'}],{duration:1100,easing:'cubic-bezier(.16,1,.3,1)'});
+  }
+  function stop() { active=false;document.documentElement.classList.remove('custom-pointer');cursor.hidden=true;rings.forEach(el=>el.getAnimations().forEach(a=>a.cancel())); }
+  document.addEventListener('pointermove',e=>{
+    if (!fine.matches || e.pointerType==='touch' || document.hidden) return;
+    x=e.clientX;y=e.clientY;cursor.style.transform=`translate(${x}px,${y}px)`;
+    cursor.classList.toggle('interactive',!!e.target.closest('a,button,summary,input,textarea,select,label,[role="button"],[contenteditable]'));
+    cursor.hidden=false;document.documentElement.classList.add('custom-pointer');
+    active=true;
+  },{passive:true});
+  document.addEventListener('pointerover',e=>{if(active)cursor.classList.toggle('interactive',!!e.target.closest('a,button,summary,input,textarea,select,label,[role="button"],[contenteditable]'));},{passive:true});
+  document.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='touch' || e.button!==0 || e.target.closest('a,button,summary,input,textarea,select,label,[role="button"],[contenteditable]'))return;
+    if(!Number.isFinite(e.clientX)||!Number.isFinite(e.clientY))return;
+    x=e.clientX;y=e.clientY;pulse();
+  },{passive:true});
+  document.documentElement.addEventListener('pointerleave',stop);
+  window.addEventListener('blur',stop);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  reduced.addEventListener('change',stop);fine.addEventListener('change',stop);
+})();
+
+// Compact mobile navigation with keyboard and outside-click dismissal.
+(() => {
+  const toggle=document.querySelector('.menu-toggle'),nav=document.querySelector('#main-navigation');
+  if(!toggle || !nav || typeof matchMedia !== 'function')return;
+  const mobile=matchMedia('(max-width: 640px)');
+  function set(open){toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Close navigation':'Open navigation');nav.classList.toggle('is-open',open);nav.inert=mobile.matches&&!open;}
+  toggle.addEventListener('click',()=>set(toggle.getAttribute('aria-expanded')!=='true'));
+  nav.addEventListener('click',e=>{if(e.target.closest('a'))set(false);});
+  document.addEventListener('click',e=>{if(!nav.contains(e.target)&&!toggle.contains(e.target))set(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&toggle.getAttribute('aria-expanded')==='true'){set(false);toggle.focus();}});
+  mobile.addEventListener('change',()=>set(false));set(false);
+})();
+
+// Smooth methodology: retain native details semantics and no-JS fallback.
+(() => {
+  const panel = document.querySelector('#methodology');
+  if (!panel || typeof panel.animate !== 'function') return;
+  const summary = panel.querySelector('summary');
+  const body = panel.querySelector('.method-body');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let animation = null, expanded = panel.open;
+  function settle() {
+    if (animation) { animation.onfinish = null; animation.cancel(); animation = null; }
+    panel.open = expanded; panel.style.height = ''; panel.style.overflow = '';
+    body.inert = !expanded;
+    summary.setAttribute('aria-expanded', String(expanded));
+    panel.dataset.expanded = String(expanded);
+  }
+  function setOpen(next, animate = true) {
+    const start = panel.getBoundingClientRect().height;
+    if (animation) { animation.onfinish = null; animation.cancel(); animation = null; }
+    expanded = next;
+    if (!next && body.contains(document.activeElement)) summary.focus();
+    body.inert = !next;
+    summary.setAttribute('aria-expanded', String(next)); panel.dataset.expanded = String(next);
+    panel.open = true; panel.style.height = '';
+    const end = next ? panel.getBoundingClientRect().height : summary.getBoundingClientRect().height + 2;
+    if (reduced.matches || !animate || Math.abs(end-start) < 1) { settle(); return; }
+    panel.style.height = `${start}px`; panel.style.overflow = 'hidden';
+    animation = panel.animate([{height: `${start}px`}, {height: `${end}px`}], {
+      duration: 420, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both'
+    });
+    animation.onfinish = settle;
+  }
+  summary.addEventListener('click', event => { event.preventDefault(); setOpen(!expanded); });
+  for (const link of document.querySelectorAll('a[href="#methodology"]')) {
+    link.addEventListener('click', () => { if (!expanded) setOpen(true); });
+  }
+  const fromHash = () => { if (!expanded && ['#methodology', '#method-details'].includes(location.hash)) setOpen(true, false); };
+  window.addEventListener('hashchange', fromHash);
+  window.addEventListener('resize', () => { if (animation) settle(); }, { passive: true });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && animation) settle(); });
+  reduced.addEventListener('change', () => { if (reduced.matches) settle(); });
+  settle(); fromHash();
+})();
+
 // Decorative globe: bounded Canvas 2D work, no assets, no WebGL or 3D dependency.
 (() => {
   const canvas = document.querySelector('#globe-canvas');
@@ -309,4 +401,19 @@ document.addEventListener('visibilitychange', () => { document.documentElement.d
   new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();},{threshold:.05}).observe(stage);
   new ResizeObserver(resize).observe(stage);
   resize();stage.dataset.ready='true';sync();
+})();
+
+// A finite, skippable brand reveal; never leave the app locked behind decoration.
+(() => {
+  const splash=document.querySelector('#entry-splash'),page=document.querySelector('.page');
+  if(!splash || !page || typeof splash.remove!=='function' || typeof matchMedia!=='function')return;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let timer;
+  function finish(){clearTimeout(timer);page.inert=false;document.documentElement.classList.remove('entry-revealing');splash.remove();document.removeEventListener('keydown',skip);reduced.removeEventListener('change',finish);}
+  function skip(event){if(event.key==='Escape')finish();}
+  if(reduced.matches){splash.remove();return;}
+  page.inert=true;document.documentElement.classList.add('entry-revealing');
+  document.addEventListener('keydown',skip);reduced.addEventListener('change',finish);
+  timer=setTimeout(finish,2450);
+  window.addEventListener('pagehide',finish,{once:true});
 })();

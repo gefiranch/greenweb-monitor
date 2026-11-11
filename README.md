@@ -259,3 +259,29 @@ Production builds use content-hashed asset revision tags. If replacing an older 
 ## 13. Living network refinement
 
 See [docs/NETWORK_MOTION.md](docs/NETWORK_MOTION.md) for the globe and instrument-card update. The homepage no longer contains the example button or the redundant privacy sentence below the form.
+
+## 14. Water background and smooth disclosure
+
+A subtle water-ripple layer follows cursor movement behind page content. It reuses eight CSS surfaces and animates only transforms/opacity; pointer events are passive and emissions are throttled to one per 180 ms, with each ripple fading after 1.45 seconds. There is no background rendering loop or idle timer. Reduced motion, coarse/touch pointers and hidden tabs disable or cancel the effect. The normal cursor and all content interactions remain available.
+
+The document scrollbar is visually hidden; native wheel, touch and keyboard scrolling are preserved. “How the estimate works” expands and collapses over 420 ms, reverses from its current height on repeated clicks, and retains native details/summary keyboard and no-JavaScript behavior. Content becomes inert during closing; inline dimensions clear on completion, resize or preference change. Methodology links open the section and scroll to its container. See [docs/FLUID_DISCLOSURE.md](docs/FLUID_DISCLOSURE.md).
+
+## Cursor and mobile navigation update
+
+Mobile navigation collapses into an accessible hamburger menu (Escape, outside click, and link selection close it). Desktop uses a dot cursor, a ring for clickable controls, and the same ring + dot in inputs. Sonar waves appear only on background clicks, with no automatic pulses. Effects pause when the tab is hidden or the pointer leaves, and respect reduced motion. The Analyze button shows an hourglass only while a request is running. No animation dependency was added.
+
+Cursor refinement: hide native pointers consistently on all page descendants (including SVGs and input controls). White difference blending gives the custom dot and ring automatic contrast on light surfaces. Sonar waves use stronger opacity and two fine wave fronts while remaining below content.
+
+Analyze button hover: the highlight fades over a stable gradient, with a subtle lift and icon motion. Pointer exit reverses the same transition. Disabled/loading resets the hover transform; reduced motion keeps the control static.
+
+Visual treatment: plain white heading and neutral white Analyze button on the black and silver interface. The custom cursor dot remains 7px. Colored ambient hero gradients have been removed.
+
+## Brand icon and entry reveal
+
+The supplied GreenWeb mark is traced as a small SVG silhouette, used in the navbar and the browser favicon. Each fresh page load or refresh shows the black mark on a white screen briefly, fades it out, and reveals the site through seven white panels sliding up in sequence. The reveal finishes in 2.45 seconds, can be skipped with Escape, and is omitted for reduced motion. The content is inert only during the reveal and is restored by a bounded timeout. CSS also hides the overlay if JavaScript is unavailable. No animation package or external asset request is needed.
+
+The favicon uses a smaller black mark inside a white circle with transparent corners. The entry reveal uses a soft logo entrance and exit, staggered white panels rising, and a subtle content settle.
+
+Background interaction update: a subtle static silver/slate gradient adds depth. Sonar is click-only, ignores form controls and links, and supports rapid repeated clicks through a reusable pool of 12 ripples. No interval or idle animation runs. Reduced motion and hidden tabs suppress the ripples.
+
+Entry choreography: the white panels now lift upward, beginning at 1 second. Navbar, globe, heading, description, and form enter in a short stagger between 1.45 and 1.75 seconds, finishing before the 2.45-second unlock. Entry animations use only transform and opacity and are omitted for reduced motion.
