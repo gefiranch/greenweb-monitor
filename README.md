@@ -285,3 +285,11 @@ The favicon uses a smaller black mark inside a white circle with transparent cor
 Background interaction update: a subtle static silver/slate gradient adds depth. Sonar is click-only, ignores form controls and links, and supports rapid repeated clicks through a reusable pool of 12 ripples. No interval or idle animation runs. Reduced motion and hidden tabs suppress the ripples.
 
 Entry choreography: the white panels now lift upward, beginning at 1 second. Navbar, globe, heading, description, and form enter in a short stagger between 1.45 and 1.75 seconds, finishing before the 2.45-second unlock. Entry animations use only transform and opacity and are omitted for reduced motion.
+
+## Deploy to Vercel
+
+Import this GitHub repository with the Express framework preset. The recognized entry is `src/server.js`, which default-exports the Express application. `createApp` remains available for tests, and `npm start` starts the same app locally. Static assets live in `public/`; the homepage also has an explicit Express route.
+
+Set `PAGESPEED_API_KEY` in the Vercel project environment, then deploy the branch containing the server fix. The `npm run build` output is a separate Cloudflare/Sites artifact; do not configure `dist/server/index.js` as the Vercel function entry or set `dist` as Vercel's output directory. Leave Output Directory at its Express preset default.
+
+If logs show `Invalid export` and `FUNCTION_INVOCATION_FAILED`, verify that the deployed commit includes `export default app` in `src/server.js`. A patch file saved in the repo does not apply changes to the source.

@@ -23,7 +23,11 @@ export function createApp(options = {}) {
     for (const [key, value] of response.headers) res.setHeader(key, value);
     res.status(response.status).send(await response.text());
   });
-  app.use(express.static(fileURLToPath(new URL('../public', import.meta.url)), { etag: true, maxAge: 0 }));
+  const publicDirectory = fileURLToPath(new URL('../public', import.meta.url));
+  // Vercel serves public assets through its CDN and bypasses express.static.
+  // Keep the document route explicit for requests dispatched to the function.
+  app.get(['/', '/index.html'], (req, res) => res.sendFile('index.html', { root: publicDirectory }));
+  app.use(express.static(publicDirectory, { etag: true, maxAge: 0 }));
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Page not found.' } }));
   app.use((error, req, res, next) => {
     const status = error.type === 'entity.too.large' ? 413 : 400;
@@ -32,9 +36,13 @@ export function createApp(options = {}) {
   return app;
 }
 
+// Vercel imports the recognized entry module instead of running the CLI guard.
+const app = createApp();
+export default app;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const port = Number(args[args.indexOf('--port') + 1]) || Number(process.env.PORT) || 3000;
   const host = args.includes('--host') ? args[args.indexOf('--host') + 1] : '0.0.0.0';
-  createApp().listen(port, host, () => console.info(`GreenWeb Monitor is running on port ${port}`));
+  app.listen(port, host, () => console.info(`GreenWeb Monitor is running on port ${port}`));
 }
