@@ -57,15 +57,3 @@ export function getRecommendations(audits = {}) {
   findings.sort((a, b) => ranks[a.priority] - ranks[b.priority] || weight(b) - weight(a) || a.score - b.score);
   return uniqueGroups(findings).slice(0, 5).map(({ group, score, ...item }) => item);
 }
-// Retained API field for compatibility; passing checks are not improvement impacts.
-const passedLabels = {
-  scripts: 'Unused JavaScript', styles: 'Unused CSS', images: 'Image delivery',
-  loading: 'Render-blocking resources', compression: 'Text compression',
-  'minify-js': 'JavaScript minification', 'minify-css': 'CSS minification', payload: 'Page payload',
-};
-export function getPassedChecks(audits = {}) {
-  const checks = collectChecks(audits);
-  const failedGroups = new Set(checks.filter(item => item.score < 1).map(item => item.group));
-  return uniqueGroups(checks.filter(item => item.score === 1 && !failedGroups.has(item.group)))
-    .map(({ id, group }) => ({ id, title: passedLabels[group] }));
-}

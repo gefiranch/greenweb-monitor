@@ -141,7 +141,7 @@ test('results label improvement impact, count low-impact recommendations and res
   const result = fixtureResult([
     { title: 'Scripts', priority: 'high' }, { title: 'Styles', priority: 'medium' }, { title: 'Small saving', priority: 'low', impactEvidence: 'Estimated savings: 5.0 KiB' }, { title: 'Unknown', priority: '<script>' }
   ]);
-  const app = await harness(async () => Response.json(++calls === 1 ? result : { ...fixtureResult([]), passedChecks: [] }));
+  const app = await harness(async () => Response.json(++calls === 1 ? result : { ...fixtureResult([]) }));
   app.get('website-url').value = 'https://example.com/'; await app.submit();
   const items = app.get('recommendation-list').children;
   assert.deepEqual(items.map(item => item.children[3].textContent), ['High impact', 'Medium impact', 'Low impact', 'Impact not estimated']);

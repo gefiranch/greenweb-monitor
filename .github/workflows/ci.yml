@@ -1,0 +1,23 @@
+name: Verify GreenWeb Monitor
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Check production JavaScript syntax
+        run: |
+          for file in public/app.js src/*.js; do
+            node --check "$file"
+          done

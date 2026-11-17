@@ -4,7 +4,7 @@ import { co2 } from '@tgwf/co2';
 import { validateUrl } from '../src/validation.js';
 import { estimateCarbon } from '../src/carbon.js';
 import { analyzePageSpeed, normalizePageSpeed } from '../src/pagespeed.js';
-import { getRecommendations, getPassedChecks } from '../src/recommendations.js';
+import { getRecommendations } from '../src/recommendations.js';
 import { pageSpeedFixture } from './fixture.js';
 
 for (const value of ['https://example.com', 'http://example.com/page?q=one', 'https://8.8.8.8', 'https://[2606:4700:4700::1111]/', 'https://例え.jp/']) {
@@ -90,11 +90,9 @@ test('impact bands follow savings thresholds rather than audit severity', () => 
   for (const score of [null, undefined, NaN, Infinity, -1, 2, '1']) {
     const audits = { 'unused-javascript': { score } };
     assert.deepEqual(getRecommendations(audits), []);
-    assert.deepEqual(getPassedChecks(audits), []);
   }
   for (const scoreDisplayMode of ['error', 'manual', 'notApplicable', 'not_applicable']) {
     assert.deepEqual(getRecommendations({ 'unused-javascript': { score: .1, scoreDisplayMode, details: { overallSavingsMs: 500 } } }), []);
-    assert.deepEqual(getPassedChecks({ 'unused-javascript': { score: 1, scoreDisplayMode } }), []);
   }
 });
 test('missing and invalid savings are unclassified, never green', () => {
@@ -120,9 +118,8 @@ test('largest savings rank first and win related audit groups despite higher sco
   };
   assert.deepEqual(getRecommendations(audits).map(item => item.id), ['render-blocking-insight', 'image-delivery-insight', 'unused-css-rules', 'unused-javascript']);
 });
-test('passing checks never become low-impact advice or contradict a related finding', () => {
+test('passing audits are excluded from improvement advice', () => {
   const audits = { 'modern-image-formats': { score: 1 }, 'image-delivery-insight': { score: .95, details: { overallSavingsBytes: 1000 } } };
   assert.equal(getRecommendations(audits)[0].priority, 'low');
-  assert.deepEqual(getPassedChecks(audits), []);
   assert.deepEqual(getRecommendations({ 'unused-javascript': { score: 1, details: { overallSavingsMs: 1000 } } }), []);
 });
